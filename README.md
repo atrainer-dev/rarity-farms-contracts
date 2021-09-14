@@ -1,3 +1,11 @@
+# QuickStart
+
+1. npm install
+2. npx hardhat compile
+3. npx hardhat node
+4. New Terminal
+5. node scripts/deploy.js
+
 # Advanced Sample Hardhat Project
 
 This project demonstrates an advanced Hardhat use case, integrating other tools commonly used alongside Hardhat in the ecosystem.
