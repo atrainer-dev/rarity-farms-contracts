@@ -8,15 +8,24 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./Corn.sol";
 import "./Wheat.sol";
 
+interface Rarity {
+  function level(uint256) external view returns (uint256);
+
+  function getApproved(uint256) external view returns (address);
+
+  function ownerOf(uint256) external view returns (address);
+}
+
 contract BeginnerFarm is ERC20 {
-  mapping(address => uint256) public lastInteraction;
+  Rarity constant rm = Rarity(0xce761D788DF608BD21bdd59d6f4B54b2e27F25Bb);
+  mapping(uint256 => uint256) public log;
 
   Corn public corn;
   Wheat public wheat;
 
   // Events
-  event FarmCorn(address indexed sender, address indexed nft);
-  event FarmWheat(address indexed sender, address indexed nft);
+  event FarmCorn(address indexed sender, uint256 indexed nft);
+  event FarmWheat(address indexed sender, uint256 indexed nft);
 
   constructor(Corn _corn, Wheat _wheat) ERC20("RarityFarms", "BeginnerFarm") {
     console.log("Deploying Beginner Farm ");
@@ -25,17 +34,17 @@ contract BeginnerFarm is ERC20 {
     wheat = _wheat;
   }
 
-  function farmCorn(address _nft) public {
+  function farmCorn(uint256 summoner) public {
     // Figure out how to do this once per day
     // Similar to adventure function.  https://ftmscan.com/address/0xce761d788df608bd21bdd59d6f4b54b2e27f25bb#code
-    corn.mint(_nft);
-    lastInteraction[_nft] = block.number;
-    emit FarmCorn(msg.sender, _nft);
+    corn.mint(summoner, 1 * 1e18);
+    log[summoner] = block.number;
+    emit FarmCorn(msg.sender, summoner);
   }
 
-  function farmWheat(address _nft) public {
-    wheat.mint(_nft);
-    lastInteraction[_nft] = block.number;
-    emit FarmWheat(msg.sender, _nft);
+  function farmWheat(uint256 summoner) public {
+    wheat.mint(summoner, 1 * 1e18);
+    log[summoner] = block.number;
+    emit FarmWheat(msg.sender, summoner);
   }
 }
