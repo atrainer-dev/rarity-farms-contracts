@@ -24,8 +24,7 @@ contract BeginnerFarm is ERC20 {
   Wheat public wheat;
 
   // Events
-  event FarmCorn(address indexed sender, uint256 indexed nft);
-  event FarmWheat(address indexed sender, uint256 indexed nft);
+  event Farm(address indexed sender, uint256 indexed nft, uint8 resource);
 
   constructor(Corn _corn, Wheat _wheat) ERC20("RarityFarms", "BeginnerFarm") {
     console.log("Deploying Beginner Farm ");
@@ -34,18 +33,19 @@ contract BeginnerFarm is ERC20 {
     wheat = _wheat;
   }
 
-  function farmCorn(uint256 summoner) public {
+  function farm(uint256 summoner, uint8 resource) external returns (bool) {
+    require(resource > 0 && resource < 3, "Resource not valid");
     // May do something with level here.  leval 1-5 get 1 per day.  5-10 get 2.  idk yet.
     // Figure out how to do this once per day
     // Similar to adventure function.  https://ftmscan.com/address/0xce761d788df608bd21bdd59d6f4b54b2e27f25bb#code
-    corn.mint(summoner, 1 * 1e18);
-    log[summoner] = block.number;
-    emit FarmCorn(msg.sender, summoner);
-  }
+    if (resource == 1) {
+      corn.mint(summoner, 1 * 1e18);
+    } else if (resource == 2) {
+      wheat.mint(summoner, 1 * 1e18);
+    }
 
-  function farmWheat(uint256 summoner) public {
-    wheat.mint(summoner, 1 * 1e18);
     log[summoner] = block.number;
-    emit FarmWheat(msg.sender, summoner);
+    emit Farm(msg.sender, summoner, resource);
+    return true;
   }
 }

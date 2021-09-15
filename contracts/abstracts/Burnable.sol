@@ -9,26 +9,27 @@ import "./Base.sol";
 abstract contract RarityBurnable is RarityERC20 {
   using SafeMath for uint256;
 
-  mapping(address => bool) public burners;
+  mapping(address => uint256) public burnAllowance;
 
   event Burn(uint256 indexed from, uint256 indexed to, uint256 amount);
+  event BurnApproval(uint256 indexed from, address indexed to, uint256 amount);
+
+  function approveBurn(
+    uint256 from,
+    address burner,
+    uint256 amount
+  ) external returns (bool) {
+    require(_isOwner(from), "Not Owner");
+    burnAllowance[burner] = amount;
+    emit BurnApproval(from, burner, amount);
+    return true;
+  }
 
   function _burn(uint256 dst, uint256 amount) internal {
-    require(burners[msg.sender] == true, "Mint Access Denied");
     uint256 balance = balanceOf[dst];
     require(balance >= amount, "Balance too low");
     totalSupply = totalSupply.sub(amount);
     balanceOf[dst] = balance.sub(amount);
     emit Burn(dst, dst, amount);
-  }
-
-  function _addBurner(address burner) internal {
-    require(msg.sender == owner, "Must be owner");
-    burners[burner] = true;
-  }
-
-  function _removeBurner(address burner) internal {
-    require(msg.sender == owner, "Must be owner");
-    burners[burner] = false;
   }
 }

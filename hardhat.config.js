@@ -32,6 +32,13 @@ module.exports = {
       accounts:
         process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
     },
+    ftmtestnet: {
+      url: "https://rpc.testnet.fantom.network/",
+      accounts:
+        process.env.FTMTESTNET_PRIVATE_KEY !== undefined
+          ? [process.env.FTMTESTNET_PRIVATE_KEY]
+          : [],
+    },
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,

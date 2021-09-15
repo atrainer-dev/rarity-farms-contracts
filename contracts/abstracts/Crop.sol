@@ -9,8 +9,10 @@ import "./Mintable.sol";
 import "./Burnable.sol";
 
 abstract contract Crop is RarityERC20, RarityBurnable, RarityMintable {
+  using SafeMath for uint256;
+
   function mint(uint256 summoner, uint256 amount) external {
-    require(_isApprovedOrOwner(summoner), "NFT Access Deinied");
+    require(minters[msg.sender] == true, "Mint Access Denied");
     _mint(summoner, amount);
   }
 
@@ -24,18 +26,17 @@ abstract contract Crop is RarityERC20, RarityBurnable, RarityMintable {
     _removeMinter(minter);
   }
 
-  function burn(uint256 summoner, uint256 amount) external {
-    require(_isApprovedOrOwner(summoner), "NFT Access Deinied");
+  function burn(uint256 summoner, uint256 amount) external returns (bool) {
+    require(_isOwner(summoner), "Burn Access Denied");
     _burn(summoner, amount);
+    return true;
   }
 
-  function addBurner(address burner) external {
-    require(msg.sender == owner, "Must be owner");
-    _addBurner(burner);
-  }
-
-  function removeBurner(address burner) external {
-    require(msg.sender == owner, "Must be owner");
-    _removeBurner(burner);
+  function burnFrom(uint256 summoner, uint256 amount) external returns (bool) {
+    uint256 allowance = burnAllowance[msg.sender];
+    require(allowance >= amount, "Requested Burn greater than approval");
+    _burn(summoner, amount);
+    burnAllowance[msg.sender] = allowance.sub(amount);
+    return true;
   }
 }

@@ -22,6 +22,7 @@ abstract contract RarityERC20 {
   rarity constant rm = rarity(0xce761D788DF608BD21bdd59d6f4B54b2e27F25Bb);
 
   mapping(uint256 => uint256) public balanceOf;
+  mapping(uint256 => mapping(uint256 => uint256)) public allowance;
 
   event Transfer(uint256 indexed from, uint256 indexed to, uint256 amount);
   event Approval(uint256 indexed from, uint256 indexed to, uint256 amount);
@@ -30,10 +31,16 @@ abstract contract RarityERC20 {
     owner = _owner;
   }
 
+  function _isOwner(uint256 _summoner) internal view returns (bool) {
+    return rm.ownerOf(_summoner) == msg.sender;
+  }
+
+  function _isApproved(uint256 _summoner) internal view returns (bool) {
+    return rm.getApproved(_summoner) == msg.sender;
+  }
+
   function _isApprovedOrOwner(uint256 _summoner) internal view returns (bool) {
-    return
-      rm.getApproved(_summoner) == msg.sender ||
-      rm.ownerOf(_summoner) == msg.sender;
+    return _isApproved(_summoner) || _isOwner(_summoner);
   }
 
   function transfer(
@@ -41,7 +48,28 @@ abstract contract RarityERC20 {
     uint256 to,
     uint256 amount
   ) external returns (bool) {
-    require(_isApprovedOrOwner(from), "NFT Access Deinied");
+    require(_isApprovedOrOwner(from), "Not approved or owner");
+    _transferTokens(from, to, amount);
+    return true;
+  }
+
+  function transferFrom(
+    uint256 executor,
+    uint256 from,
+    uint256 to,
+    uint256 amount
+  ) external returns (bool) {
+    require(_isApprovedOrOwner(executor), "Not approved or owner");
+    uint256 spender = executor;
+    uint256 spenderAllowance = allowance[from][spender];
+
+    if (spender != from && spenderAllowance != type(uint256).max) {
+      uint256 newAllowance = spenderAllowance - amount;
+      allowance[from][spender] = newAllowance;
+
+      emit Approval(from, spender, newAllowance);
+    }
+
     _transferTokens(from, to, amount);
     return true;
   }

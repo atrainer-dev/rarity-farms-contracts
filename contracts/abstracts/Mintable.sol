@@ -14,7 +14,6 @@ abstract contract RarityMintable is RarityERC20 {
   event Mint(uint256 indexed from, uint256 indexed to, uint256 amount);
 
   function _mint(uint256 dst, uint256 amount) internal {
-    require(minters[msg.sender] == true, "Mint Access Denied");
     uint256 balance = balanceOf[dst];
     totalSupply = totalSupply.add(amount);
     balanceOf[dst] = balance.add(amount);
