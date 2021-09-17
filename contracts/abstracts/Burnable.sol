@@ -4,23 +4,22 @@ pragma solidity ^0.8.0;
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
-import "./Base.sol";
+import "./RERC20.sol";
 
-abstract contract RarityBurnable is RarityERC20 {
+abstract contract RarityBurnable is RERC20 {
   using SafeMath for uint256;
 
-  mapping(address => uint256) public burnAllowance;
+  mapping(address => mapping(uint256 => uint256)) public burnAllowance;
 
   event Burn(uint256 indexed from, uint256 indexed to, uint256 amount);
   event BurnApproval(uint256 indexed from, address indexed to, uint256 amount);
 
-  function approveBurn(
+  function _burnApprove(
     uint256 from,
     address burner,
     uint256 amount
-  ) external returns (bool) {
-    require(_isOwner(from), "Not Owner");
-    burnAllowance[burner] = amount;
+  ) internal returns (bool) {
+    burnAllowance[burner][from] = amount;
     emit BurnApproval(from, burner, amount);
     return true;
   }

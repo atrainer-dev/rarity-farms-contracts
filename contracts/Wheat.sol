@@ -3,13 +3,12 @@ pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
 import "./abstracts/Crop.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract Wheat is Crop {
   string public constant name = "RarityFarms";
   string public constant symbol = "WHEAT";
 
-  constructor() RarityERC20(msg.sender) {
+  constructor(address _rarity) RERC20(msg.sender, _rarity) {
     console.log("Deploying Wheat contract");
   }
 }

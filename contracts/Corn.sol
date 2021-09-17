@@ -6,10 +6,8 @@ import "./abstracts/Crop.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract Corn is Crop {
-  string public constant name = "RarityFarms";
+  string public constant name = "RarityFarms-Corn";
   string public constant symbol = "CORN";
 
-  constructor() RarityERC20(msg.sender) {
-    console.log("Deploying Corn contract");
-  }
+  constructor(address _rarity) RERC20(msg.sender, _rarity) {}
 }

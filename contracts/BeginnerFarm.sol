@@ -2,9 +2,9 @@
 pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
+import "./abstracts/RERC20.sol";
 import "./Corn.sol";
 import "./Wheat.sol";
 
@@ -16,8 +16,19 @@ interface Rarity {
   function ownerOf(uint256) external view returns (address);
 }
 
-contract BeginnerFarm is ERC20 {
-  Rarity constant rm = Rarity(0xce761D788DF608BD21bdd59d6f4B54b2e27F25Bb);
+contract BeginnerFarm is RERC20 {
+  using SafeMath for uint256;
+
+  struct Rewards {
+    uint8 level1;
+    uint8 level5;
+    uint8 level10;
+  }
+
+  string public constant name = "RarityFarms";
+  string public constant symbol = "BFARM";
+  uint256 constant DAY = 1 days;
+
   mapping(uint256 => uint256) public log;
 
   Corn public corn;
@@ -26,7 +37,11 @@ contract BeginnerFarm is ERC20 {
   // Events
   event Farm(address indexed sender, uint256 indexed nft, uint8 resource);
 
-  constructor(Corn _corn, Wheat _wheat) ERC20("RarityFarms", "BeginnerFarm") {
+  constructor(
+    address _rarity,
+    Corn _corn,
+    Wheat _wheat
+  ) RERC20(msg.sender, _rarity) {
     console.log("Deploying Beginner Farm ");
 
     corn = _corn;
@@ -34,6 +49,8 @@ contract BeginnerFarm is ERC20 {
   }
 
   function farm(uint256 summoner, uint8 resource) external returns (bool) {
+    require(_isApprovedOrOwner(summoner));
+    require(block.timestamp > log[summoner]);
     require(resource > 0 && resource < 3, "Resource not valid");
     // May do something with level here.  leval 1-5 get 1 per day.  5-10 get 2.  idk yet.
     // Figure out how to do this once per day
@@ -44,7 +61,7 @@ contract BeginnerFarm is ERC20 {
       wheat.mint(summoner, 1 * 1e18);
     }
 
-    log[summoner] = block.number;
+    log[summoner] = block.timestamp + DAY;
     emit Farm(msg.sender, summoner, resource);
     return true;
   }

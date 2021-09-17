@@ -3,18 +3,20 @@
 //
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
+const { ethers } = require("ethers");
 const hre = require("hardhat");
+const constants = require("./constants");
 
 async function main() {
   const [deployer] = await ethers.getSigners();
-  console.log("Deploying contracts with the account:", deployer.address);
-  console.log("Account balance:", (await deployer.getBalance()).toString());
-  // Hardhat always runs the compile task when running scripts with its command
-  // line interface.
-  //
-  // If this script is run directly using `node` you may want to call compile
-  // manually to make sure everything is compiled
-  // await hre.run('compile');
+  const config = constants[process.env.HARDHAT_NETWORK];
+
+  console.log(`
+  Deploying to network: ${process.env.HARDHAT_NETWORK}
+  Deploying contracts with the account: ${deployer.address}
+  Account balance: ${(await deployer.getBalance()).toString()}
+  Rarity Address: ${config.rarity}
+  `);
 
   // We get the contract to deploy
   const Corn = await hre.ethers.getContractFactory("Corn");
@@ -22,9 +24,9 @@ async function main() {
   const Bfarm = await hre.ethers.getContractFactory("BeginnerFarm");
 
   console.log("Deploying Corn Contract");
-  const corn = await Corn.deploy();
+  const corn = await Corn.deploy(config.rarity);
   console.log("Deploying Wheat Contract");
-  const wheat = await Wheat.deploy();
+  const wheat = await Wheat.deploy(config.rarity);
 
   console.log("Crops deployed");
 
@@ -34,10 +36,14 @@ async function main() {
   console.log("Wheat deployed to:", wheat.address);
 
   console.log("Deploying Farm Contract");
-  const bfarm = await Bfarm.deploy(corn.address, wheat.address);
+  const bfarm = await Bfarm.deploy(config.rarity, corn.address, wheat.address);
   await bfarm.deployed();
 
   console.log("Beginner Farm deployed to:", bfarm.address);
+
+  console.log("Adding Minter to crops");
+  await Corn.addMinter(bfarm.address);
+  await Wheat.addMinter(bfarm.address);
 }
 
 // We recommend this pattern to be able to use async/await everywhere

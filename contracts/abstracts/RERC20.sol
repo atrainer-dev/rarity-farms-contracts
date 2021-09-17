@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import "hardhat/console.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
-interface rarity {
+interface IRarity {
   function level(uint256) external view returns (uint256);
 
   function getApproved(uint256) external view returns (address);
@@ -12,23 +12,26 @@ interface rarity {
   function ownerOf(uint256) external view returns (address);
 }
 
-abstract contract RarityERC20 {
+abstract contract RERC20 {
   using SafeMath for uint256;
-  uint8 public constant decimals = 18;
-
-  address public owner;
   uint256 public totalSupply = 0;
-
-  rarity constant rm = rarity(0xce761D788DF608BD21bdd59d6f4B54b2e27F25Bb);
+  uint8 public constant decimals = 18;
+  address public owner;
+  IRarity rm;
 
   mapping(uint256 => uint256) public balanceOf;
-  mapping(uint256 => mapping(uint256 => uint256)) public allowance;
+  mapping(uint256 => mapping(uint256 => uint256)) public transferAllowance;
 
   event Transfer(uint256 indexed from, uint256 indexed to, uint256 amount);
-  event Approval(uint256 indexed from, uint256 indexed to, uint256 amount);
+  event TransferApproval(
+    uint256 indexed from,
+    uint256 indexed to,
+    uint256 amount
+  );
 
-  constructor(address _owner) {
+  constructor(address _owner, address _rarity) {
     owner = _owner;
+    rm = IRarity(_rarity);
   }
 
   function _isOwner(uint256 _summoner) internal view returns (bool) {
@@ -43,12 +46,24 @@ abstract contract RarityERC20 {
     return _isApproved(_summoner) || _isOwner(_summoner);
   }
 
+  function approve(
+    uint256 from,
+    uint256 spender,
+    uint256 amount
+  ) external returns (bool) {
+    require(_isApprovedOrOwner(from), "Must be owner");
+    transferAllowance[from][spender] = amount;
+
+    emit TransferApproval(from, spender, amount);
+    return true;
+  }
+
   function transfer(
     uint256 from,
     uint256 to,
     uint256 amount
   ) external returns (bool) {
-    require(_isApprovedOrOwner(from), "Not approved or owner");
+    require(_isApprovedOrOwner(from), "Must be owner");
     _transferTokens(from, to, amount);
     return true;
   }
@@ -59,15 +74,16 @@ abstract contract RarityERC20 {
     uint256 to,
     uint256 amount
   ) external returns (bool) {
-    require(_isApprovedOrOwner(executor), "Not approved or owner");
+    require(_isApprovedOrOwner(executor));
     uint256 spender = executor;
-    uint256 spenderAllowance = allowance[from][spender];
+    uint256 spenderAllowance = transferAllowance[from][spender];
 
     if (spender != from && spenderAllowance != type(uint256).max) {
       uint256 newAllowance = spenderAllowance - amount;
-      allowance[from][spender] = newAllowance;
+      transferAllowance[from][spender] = newAllowance;
 
-      emit Approval(from, spender, newAllowance);
+      emit TransferApproval(from, to, amount);
+      (from, spender, newAllowance);
     }
 
     _transferTokens(from, to, amount);
@@ -79,11 +95,9 @@ abstract contract RarityERC20 {
     uint256 to,
     uint256 amount
   ) internal {
-    uint256 balanceFrom = balanceOf[from];
-    uint256 balanceTo = balanceOf[to];
-    require(balanceFrom >= amount, "Balance too low");
-    balanceOf[from] = balanceFrom.sub(amount);
-    balanceOf[to] = balanceTo.add(amount);
+    balanceOf[from] -= amount;
+    balanceOf[to] += amount;
+
     emit Transfer(from, to, amount);
   }
 }
