@@ -301,6 +301,7 @@ describe("Corn", function () {
       ).to.equal(0);
     });
   });
+
   describe("setRarity", () => {
     it("should error if not owner", async function () {
       try {
@@ -313,6 +314,22 @@ describe("Corn", function () {
     it("should change rarity address", async function () {
       await corn.connect(owner).setRarity(randomAddress);
       expect(await corn.rarityAddress()).to.equal(randomAddress);
+    });
+  });
+
+  describe("setOwner", () => {
+    it("should error if not owner", async function () {
+      try {
+        await corn.connect(address1).setOwner(randomAddress);
+      } catch (err) {
+        expect(err.message).to.contain("Must be owner");
+      }
+    });
+
+    it("should change owner address", async function () {
+      expect(await corn.owner()).to.equal(owner.address);
+      await corn.connect(owner).setOwner(randomAddress);
+      expect(await corn.owner()).to.equal(randomAddress);
     });
   });
 });

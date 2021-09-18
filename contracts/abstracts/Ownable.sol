@@ -4,8 +4,8 @@ pragma solidity ^0.8.0;
 abstract contract Ownable {
   address public owner;
 
-  constructor(address _owner) {
-    owner = _owner;
+  constructor() {
+    owner = msg.sender;
   }
 
   function _isOwner(address addr) internal view returns (bool) {

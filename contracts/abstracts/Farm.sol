@@ -6,9 +6,10 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 import "./Rarity.sol";
 import "./Ownable.sol";
+import "./Pausable.sol";
 import "./Crop.sol";
 
-abstract contract Farm is Rarity, Ownable {
+abstract contract Farm is Rarity, Ownable, Pausable {
   using SafeMath for uint256;
 
   uint256 constant DAY = 1 days;
@@ -20,10 +21,7 @@ abstract contract Farm is Rarity, Ownable {
     string resource
   );
 
-  constructor(address _rarity, address _owner)
-    Rarity(_rarity)
-    Ownable(_owner)
-  {}
+  constructor(address _rarity) Rarity(_rarity) Ownable() {}
 
   function setRarity(address _rarity) external returns (bool) {
     require(owner == msg.sender, "Must be owner");
@@ -38,6 +36,7 @@ abstract contract Farm is Rarity, Ownable {
   }
 
   function _farm(uint256 summoner, Crop crop) internal returns (bool) {
+    require(_isPaused() == false, "Farm not available");
     require(block.timestamp > log[summoner], "Summoner not available to farm");
     // May do something with level here.  leval 1-5 get 1 per day.  5-10 get 2.  idk yet.
     // Figure out how to do this once per day
