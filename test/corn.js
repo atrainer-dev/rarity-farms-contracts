@@ -301,4 +301,18 @@ describe("Corn", function () {
       ).to.equal(0);
     });
   });
+  describe("setRarity", () => {
+    it("should error if not owner", async function () {
+      try {
+        await corn.connect(address1).setRarity(randomAddress);
+      } catch (err) {
+        expect(err.message).to.contain("Must be owner");
+      }
+    });
+
+    it("should change rarity address", async function () {
+      await corn.connect(owner).setRarity(randomAddress);
+      expect(await corn.rarityAddress()).to.equal(randomAddress);
+    });
+  });
 });

@@ -17,7 +17,7 @@ abstract contract RERC20 {
   uint256 public totalSupply = 0;
   uint8 public constant decimals = 18;
   address public owner;
-  IRarity rm;
+  address public rarityAddress;
 
   mapping(uint256 => uint256) public balanceOf;
   mapping(uint256 => mapping(uint256 => uint256)) public transferAllowance;
@@ -31,19 +31,29 @@ abstract contract RERC20 {
 
   constructor(address _owner, address _rarity) {
     owner = _owner;
-    rm = IRarity(_rarity);
+    rarityAddress = _rarity;
   }
 
   function _isOwner(uint256 _summoner) internal view returns (bool) {
-    return rm.ownerOf(_summoner) == msg.sender;
+    return _getRarity().ownerOf(_summoner) == msg.sender;
   }
 
   function _isApproved(uint256 _summoner) internal view returns (bool) {
-    return rm.getApproved(_summoner) == msg.sender;
+    return _getRarity().getApproved(_summoner) == msg.sender;
   }
 
   function _isApprovedOrOwner(uint256 _summoner) internal view returns (bool) {
     return _isApproved(_summoner) || _isOwner(_summoner);
+  }
+
+  function _getRarity() internal view returns (IRarity) {
+    return IRarity(rarityAddress);
+  }
+
+  function setRarity(address _rarity) external returns (bool) {
+    require(owner == msg.sender, "Must be owner");
+    rarityAddress = _rarity;
+    return true;
   }
 
   function approve(
