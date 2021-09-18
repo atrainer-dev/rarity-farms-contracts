@@ -74,19 +74,12 @@ abstract contract RERC20 {
     uint256 to,
     uint256 amount
   ) external returns (bool) {
-    require(_isApprovedOrOwner(executor));
+    require(_isApprovedOrOwner(executor), "Must be owner");
     uint256 spender = executor;
-    uint256 spenderAllowance = transferAllowance[from][spender];
-
-    if (spender != from && spenderAllowance != type(uint256).max) {
-      uint256 newAllowance = spenderAllowance - amount;
-      transferAllowance[from][spender] = newAllowance;
-
-      emit TransferApproval(from, to, amount);
-      (from, spender, newAllowance);
-    }
-
+    uint256 allowance = transferAllowance[from][spender];
+    require(amount <= allowance, "Transfer amount greater than approval");
     _transferTokens(from, to, amount);
+    transferAllowance[from][spender] = allowance.sub(amount);
     return true;
   }
 
@@ -95,8 +88,8 @@ abstract contract RERC20 {
     uint256 to,
     uint256 amount
   ) internal {
-    balanceOf[from] -= amount;
-    balanceOf[to] += amount;
+    balanceOf[from] = balanceOf[from].sub(amount);
+    balanceOf[to] = balanceOf[to].add(amount);
 
     emit Transfer(from, to, amount);
   }

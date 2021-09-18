@@ -242,4 +242,63 @@ describe("Corn", function () {
       ).to.equal(500);
     });
   });
+
+  describe("transferFrom", () => {
+    it("should error if you don't own the NFT", async function () {
+      try {
+        await corn.connect(owner).addMinter(owner.address);
+        await corn.connect(owner).mint(ownerSummoner, 1000);
+        await corn.connect(owner).approve(ownerSummoner, address1Summoner, 500);
+        await corn
+          .connect(address1)
+          .transferFrom(ownerSummoner, ownerSummoner, address1Summoner, 500);
+      } catch (err) {
+        expect(err.message).to.contain("Must be owner");
+      }
+    });
+
+    it("should error if you are not approved", async function () {
+      try {
+        await corn.connect(owner).addMinter(owner.address);
+        await corn.connect(owner).mint(ownerSummoner, 1000);
+        // await corn.connect(owner).approve(ownerSummoner, address1Summoner, 500);
+        await corn
+          .connect(address1)
+          .transferFrom(address1Summoner, ownerSummoner, address1Summoner, 500);
+      } catch (err) {
+        expect(err.message).to.contain("Transfer amount greater than approval");
+      }
+    });
+
+    it("should error if amount exceeds approval", async function () {
+      try {
+        await corn.connect(owner).addMinter(owner.address);
+        await corn.connect(owner).mint(ownerSummoner, 1000);
+        await corn.connect(owner).approve(ownerSummoner, address1Summoner, 500);
+        await corn
+          .connect(address1)
+          .transferFrom(address1Summoner, ownerSummoner, address1Summoner, 501);
+      } catch (err) {
+        expect(err.message).to.contain("Transfer amount greater than approval");
+      }
+    });
+
+    it("should succeed if you are approved", async function () {
+      await corn.connect(owner).addMinter(owner.address);
+      await corn.connect(owner).mint(ownerSummoner, 1000);
+      await corn.connect(owner).approve(ownerSummoner, address1Summoner, 500);
+      expect(await corn.balanceOf(address1Summoner)).to.equal(0);
+      expect(
+        await corn.transferAllowance(ownerSummoner, address1Summoner)
+      ).to.equal(500);
+      await corn
+        .connect(address1)
+        .transferFrom(address1Summoner, ownerSummoner, address1Summoner, 500);
+
+      expect(await corn.balanceOf(address1Summoner)).to.equal(500);
+      expect(
+        await corn.transferAllowance(ownerSummoner, address1Summoner)
+      ).to.equal(0);
+    });
+  });
 });
