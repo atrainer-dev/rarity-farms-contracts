@@ -11,6 +11,8 @@ import "./Burnable.sol";
 abstract contract Crop is RERC20, RarityBurnable, RarityMintable {
   using SafeMath for uint256;
 
+  constructor() {}
+
   function mint(uint256 summoner, uint256 amount) external returns (bool) {
     require(minters[msg.sender] == true, "Mint Access Denied");
     _mint(summoner, amount);
@@ -30,7 +32,7 @@ abstract contract Crop is RERC20, RarityBurnable, RarityMintable {
   }
 
   function burn(uint256 summoner, uint256 amount) external returns (bool) {
-    require(_isOwner(summoner), "Must be owner");
+    require(_isRarityOwner(summoner), "Must be owner");
     _burn(summoner, amount);
     return true;
   }
@@ -48,8 +50,14 @@ abstract contract Crop is RERC20, RarityBurnable, RarityMintable {
     address burner,
     uint256 amount
   ) external returns (bool) {
-    require(_isOwner(summoner), "Must be owner");
+    require(_isRarityOwner(summoner), "Must be owner");
     _burnApprove(summoner, burner, amount);
+    return true;
+  }
+
+  function setRarity(address _rarity) external returns (bool) {
+    require(owner == msg.sender, "Must be owner");
+    _setRarity(_rarity);
     return true;
   }
 }
