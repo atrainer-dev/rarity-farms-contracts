@@ -55,9 +55,9 @@ abstract contract Crop is RERC20, RarityBurnable, RarityMintable {
     return true;
   }
 
-  function setRarity(address _rarity) external returns (bool) {
+  function setRarity(RarityAddresses memory _rarity) external returns (bool) {
     require(owner == msg.sender, "Must be owner");
-    _setRarity(_rarity);
+    _setRarityAddresses(_rarity);
     return true;
   }
 }

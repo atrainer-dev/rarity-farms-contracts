@@ -5,7 +5,7 @@ import "hardhat/console.sol";
 import "../abstracts/Crop.sol";
 
 contract Wheat is Crop {
-  constructor(address _rarity) RERC20(_rarity) {
+  constructor(RarityAddresses memory _rarity) RERC20(_rarity) {
     name = "RarityFarms-Wheat";
     symbol = "WHEAT";
   }

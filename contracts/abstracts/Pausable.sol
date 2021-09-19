@@ -7,21 +7,22 @@ abstract contract Pausable {
 
   constructor() {
     paused = false;
+    pausers[msg.sender] = true;
   }
 
   function _isPaused() internal view returns (bool) {
     return paused == true;
   }
 
-  function _pause() internal returns (bool) {
+  function pause() external returns (bool) {
     require(pausers[msg.sender], "Pause denied");
-    paused = true;
+    _pause();
     return true;
   }
 
-  function _unpause() internal returns (bool) {
+  function unpause() external returns (bool) {
     require(pausers[msg.sender], "Unpause denied");
-    paused = false;
+    _unpause();
     return true;
   }
 
@@ -33,5 +34,13 @@ abstract contract Pausable {
   function _removePauser(address addr) internal returns (bool) {
     pausers[addr] = false;
     return true;
+  }
+
+  function _pause() internal {
+    paused = true;
+  }
+
+  function _unpause() internal {
+    paused = false;
   }
 }

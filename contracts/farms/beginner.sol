@@ -12,12 +12,6 @@ import "../crops/Tomato.sol";
 contract BeginnerFarm is Farm {
   using SafeMath for uint256;
 
-  struct Rewards {
-    uint8 level1;
-    uint8 level5;
-    uint8 level10;
-  }
-
   string public constant name = "RarityFarms";
   string public constant symbol = "BFARM";
 
@@ -29,7 +23,7 @@ contract BeginnerFarm is Farm {
   // Events
 
   constructor(
-    address _rarity,
+    RarityAddresses memory _rarity,
     Corn _corn,
     Wheat _wheat,
     Potato _potato,
@@ -65,16 +59,6 @@ contract BeginnerFarm is Farm {
     return true;
   }
 
-  function pause() external returns (bool) {
-    _pause();
-    return true;
-  }
-
-  function unpause() external returns (bool) {
-    _unpause();
-    return true;
-  }
-
   function addPauser(address addr) external returns (bool) {
     require(_isOwner(msg.sender), "Must be owner");
     _addPauser(addr);
@@ -86,4 +70,11 @@ contract BeginnerFarm is Farm {
     _removePauser(addr);
     return true;
   }
+
+  //TODO:  when a summoner farms add one of their attributes, need to look to see what is best, to a counter.
+  // If counter gets passed certain thresholds then it mints more resources.
+  // Farming should do rm.adventure()
+  // Disasters reduce the counter
+  // Disasters pause the farm then unpause when done
+  // Disaster has a hit count as well that summoners will use strength.
 }

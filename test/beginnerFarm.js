@@ -1,14 +1,31 @@
 const hre = require("hardhat");
 const chai = require("chai");
-const { solidity } = require("ethereum-waffle");
-chai.use(solidity);
+
 const { expect } = chai;
 const { BigNumber } = require("@ethersproject/bignumber");
 
 const randomAddress = "0x52dF56A3fa758c4542Fc92ad8485ED7183f2ab4d";
+const nullAddress = "0x0000000000000000000000000000000000000000";
+const ownerSummonerAttributes = {
+  strength: 16,
+  dexterity: 15,
+  constitution: 13,
+  intelligence: 12,
+  wisdom: 11,
+  charisma: 10,
+};
+
+const address1SummonerAttributes = {
+  strength: 10,
+  dexterity: 11,
+  constitution: 12,
+  intelligence: 13,
+  wisdom: 15,
+  charisma: 16,
+};
 
 describe.only("BeginnerFarm", function () {
-  let rarity,
+  let rarityAddresses,
     farm,
     corn,
     wheat,
@@ -20,25 +37,57 @@ describe.only("BeginnerFarm", function () {
     address1Summoner;
 
   before(async function () {
+    [owner, address1] = await ethers.getSigners();
     const Rarity = await ethers.getContractFactory("rarity");
-    rarity = await Rarity.deploy();
-    await rarity.deployed();
-  });
-
-  beforeEach(async function () {
+    const RarityAttributes = await ethers.getContractFactory(
+      "rarity_attributes"
+    );
     const Corn = await ethers.getContractFactory("Corn");
     const Wheat = await ethers.getContractFactory("Wheat");
     const Potato = await ethers.getContractFactory("Potato");
     const Tomato = await ethers.getContractFactory("Tomato");
+
+    rarity = await Rarity.deploy();
+    await rarity.deployed();
+
+    attributes = await RarityAttributes.deploy(rarity.address);
+    await attributes.deployed();
+
+    rarityAddresses = [
+      rarity.address,
+      attributes.address,
+      randomAddress,
+      randomAddress,
+    ];
+
+    await rarity.connect(owner).summon(2);
+    await rarity.connect(address1).summon(3);
+
+    ownerSummoner = 0;
+    address1Summoner = 1;
+
+    await attributes
+      .connect(owner)
+      .point_buy(ownerSummoner, ...Object.values(ownerSummonerAttributes));
+
+    await attributes
+      .connect(address1)
+      .point_buy(
+        address1Summoner,
+        ...Object.values(address1SummonerAttributes)
+      );
+
+    corn = await Corn.deploy(rarityAddresses);
+    wheat = await Wheat.deploy(rarityAddresses);
+    tomato = await Tomato.deploy(rarityAddresses);
+    potato = await Potato.deploy(rarityAddresses);
+  });
+
+  beforeEach(async function () {
     const Farm = await ethers.getContractFactory("BeginnerFarm");
 
-    [owner, address1] = await ethers.getSigners();
-    corn = await Corn.deploy(rarity.address);
-    wheat = await Wheat.deploy(rarity.address);
-    tomato = await Tomato.deploy(rarity.address);
-    potato = await Potato.deploy(rarity.address);
     farm = await Farm.deploy(
-      rarity.address,
+      rarityAddresses,
       corn.address,
       wheat.address,
       potato.address,
@@ -49,10 +98,10 @@ describe.only("BeginnerFarm", function () {
     await wheat.connect(owner).addMinter(farm.address);
     await potato.connect(owner).addMinter(farm.address);
     await tomato.connect(owner).addMinter(farm.address);
-    await rarity.summon(2);
-    await rarity.connect(address1).summon(3);
-    ownerSummoner = 0;
-    address1Summoner = 1;
+  });
+
+  describe("initialize", () => {
+    it("should error if paused", async function () {});
   });
 
   describe("farmCorn", () => {
@@ -67,22 +116,17 @@ describe.only("BeginnerFarm", function () {
     });
 
     it("should farm a corn resource", async function () {
+      await rarity.connect(address1).approve(farm.address, address1Summoner);
       await farm.connect(address1).farmCorn(address1Summoner);
       expect(await corn.balanceOf(address1Summoner)).to.equal(
         BigNumber.from("1000000000000000000")
       );
-    });
-
-    it("should only allow a farm once a day", async function () {
-      try {
-        await farm.connect(address1).farmCorn(address1Summoner);
-        await farm.connect(address1).farmCorn(address1Summoner);
-      } catch (err) {
-        expect(await corn.balanceOf(address1Summoner)).to.equal(
-          BigNumber.from("1000000000000000000")
-        );
-        expect(err.message).to.contain("Summoner not available to farm");
-      }
+      expect(
+        await expect(await farm.yield()).to.equal(
+          address1SummonerAttributes.strength +
+            address1SummonerAttributes.dexterity
+        )
+      );
     });
   });
 
@@ -165,6 +209,84 @@ describe.only("BeginnerFarm", function () {
     it("should unpause", async function () {
       await farm.connect(owner).addPauser(address1.address);
       await farm.connect(address1).unpause();
+      expect(await farm.paused()).to.equal(false);
+    });
+  });
+
+  describe("setYieldBase", () => {
+    it("should error if not owner", async function () {
+      const base = await farm.yieldBase();
+      try {
+        await farm.connect(address1).setYieldBase(40000);
+      } catch (err) {
+        expect(err.message).to.contain("Must be owner");
+        expect(await farm.yieldBase()).to.equal(base);
+      }
+    });
+
+    it("should set the base", async function () {
+      await farm.connect(owner).setYieldBase(10000);
+      expect(await farm.yieldBase()).to.equal(10000);
+    });
+  });
+
+  describe("setYield", () => {
+    it("should error if not owner", async function () {
+      const yield = await farm.yield();
+      try {
+        await farm.connect(address1).setYield(4000);
+      } catch (err) {
+        expect(err.message).to.contain("Must be owner");
+        expect(await farm.yield()).to.equal(yield);
+      }
+    });
+
+    it("should set the base", async function () {
+      await farm.connect(owner).setYield(10000);
+      expect(await farm.yield()).to.equal(10000);
+    });
+  });
+
+  describe("setDisaster", () => {
+    it("should error if not owner", async function () {
+      try {
+        await farm.connect(address1).setDisaster(randomAddress);
+      } catch (err) {
+        expect(err.message).to.contain("Must be owner");
+        expect(await farm.disaster()).to.equal(nullAddress);
+      }
+    });
+
+    it("should set disaster", async function () {
+      await farm.connect(owner).setDisaster(randomAddress);
+      expect(await farm.disaster()).to.equal(randomAddress);
+      expect(await farm.pausers(randomAddress)).to.equal(true);
+      expect(await farm.paused()).to.equal(true);
+    });
+  });
+
+  describe("clearDisaster", () => {
+    it("should error if not owner or disaster", async function () {
+      try {
+        await farm.connect(owner).setDisaster(randomAddress);
+        await farm.connect(address1).clearDisaster();
+      } catch (err) {
+        expect(err.message).to.contain("Must be owner or disaster");
+        expect(await farm.disaster()).to.equal(randomAddress);
+      }
+    });
+
+    it("should clear disaster if owner", async function () {
+      await farm.connect(owner).setDisaster(randomAddress);
+      await farm.connect(owner).clearDisaster();
+      expect(await farm.disaster()).to.equal(nullAddress);
+    });
+
+    it("should clear disaster if disaster", async function () {
+      await farm.connect(owner).setDisaster(address1.address);
+      await farm.connect(address1).clearDisaster();
+      expect(await farm.disaster()).to.equal(nullAddress);
+      expect(await farm.pausers(randomAddress)).to.equal(false);
       expect(await farm.paused()).to.equal(false);
     });
   });
