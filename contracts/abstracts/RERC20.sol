@@ -23,7 +23,7 @@ abstract contract RERC20 is Rarity, Ownable {
     uint256 amount
   );
 
-  constructor(RarityAddresses memory _rarity) Rarity(_rarity) Ownable() {}
+  constructor() Rarity() Ownable() {}
 
   function approve(
     uint256 from,

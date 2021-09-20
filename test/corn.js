@@ -5,26 +5,21 @@ chai.use(solidity);
 const { expect } = chai;
 const { BigNumber } = require("@ethersproject/bignumber");
 
+const rarityUtils = require("./utils/rarity");
+
 const randomAddress = "0x52dF56A3fa758c4542Fc92ad8485ED7183f2ab4d";
 
 describe("Corn", function () {
-  let rarity, corn, owner, address1, ownerSummoner, address1Summoner;
+  let corn, owner, address1, ownerSummoner, address1Summoner;
 
   before(async function () {
-    const Rarity = await ethers.getContractFactory("rarity");
-    rarity = await Rarity.deploy();
-    await rarity.deployed();
+    [ownerSummoner, address1Summoner] = await rarityUtils.summoners();
+    [owner, address1] = await ethers.getSigners();
   });
 
   beforeEach(async function () {
     const Corn = await ethers.getContractFactory("Corn");
-    [owner, address1] = await ethers.getSigners();
-    corn = await Corn.deploy(rarity.address);
-    await corn.deployed();
-    await rarity.summon(2);
-    await rarity.connect(address1).summon(3);
-    ownerSummoner = 0;
-    address1Summoner = 1;
+    corn = await Corn.deploy();
   });
 
   it("Should initialize the contract", async function () {
@@ -299,21 +294,6 @@ describe("Corn", function () {
       expect(
         await corn.transferAllowance(ownerSummoner, address1Summoner)
       ).to.equal(0);
-    });
-  });
-
-  describe("setRarity", () => {
-    it("should error if not owner", async function () {
-      try {
-        await corn.connect(address1).setRarity(randomAddress);
-      } catch (err) {
-        expect(err.message).to.contain("Must be owner");
-      }
-    });
-
-    it("should change rarity address", async function () {
-      await corn.connect(owner).setRarity(randomAddress);
-      expect(await corn.rarityAddress()).to.equal(randomAddress);
     });
   });
 

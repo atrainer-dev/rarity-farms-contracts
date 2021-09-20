@@ -23,12 +23,11 @@ contract BeginnerFarm is Farm {
   // Events
 
   constructor(
-    RarityAddresses memory _rarity,
     Corn _corn,
     Wheat _wheat,
     Potato _potato,
     Tomato _tomato
-  ) Farm(_rarity) {
+  ) Farm() {
     corn = _corn;
     wheat = _wheat;
     potato = _potato;

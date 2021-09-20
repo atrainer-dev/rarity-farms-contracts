@@ -4,29 +4,14 @@ const chai = require("chai");
 const { expect } = chai;
 const { BigNumber } = require("@ethersproject/bignumber");
 
+const rarityUtils = require("./utils/rarity.js");
+const farmUtils = require("./utils/farm.js");
+
 const randomAddress = "0x52dF56A3fa758c4542Fc92ad8485ED7183f2ab4d";
 const nullAddress = "0x0000000000000000000000000000000000000000";
-const ownerSummonerAttributes = {
-  strength: 16,
-  dexterity: 15,
-  constitution: 13,
-  intelligence: 12,
-  wisdom: 11,
-  charisma: 10,
-};
 
-const address1SummonerAttributes = {
-  strength: 10,
-  dexterity: 11,
-  constitution: 12,
-  intelligence: 13,
-  wisdom: 15,
-  charisma: 16,
-};
-
-describe.only("BeginnerFarm", function () {
-  let rarityAddresses,
-    farm,
+describe("BeginnerFarm", function () {
+  let farm,
     corn,
     wheat,
     tomato,
@@ -38,66 +23,21 @@ describe.only("BeginnerFarm", function () {
 
   before(async function () {
     [owner, address1] = await ethers.getSigners();
-    const Rarity = await ethers.getContractFactory("rarity");
-    const RarityAttributes = await ethers.getContractFactory(
-      "rarity_attributes"
-    );
+    [ownerSummoner, address1Summoner] = await rarityUtils.summoners();
+
     const Corn = await ethers.getContractFactory("Corn");
     const Wheat = await ethers.getContractFactory("Wheat");
     const Potato = await ethers.getContractFactory("Potato");
     const Tomato = await ethers.getContractFactory("Tomato");
 
-    rarity = await Rarity.deploy();
-    await rarity.deployed();
-
-    attributes = await RarityAttributes.deploy(rarity.address);
-    await attributes.deployed();
-
-    rarityAddresses = [
-      rarity.address,
-      attributes.address,
-      randomAddress,
-      randomAddress,
-    ];
-
-    await rarity.connect(owner).summon(2);
-    await rarity.connect(address1).summon(3);
-
-    ownerSummoner = 0;
-    address1Summoner = 1;
-
-    await attributes
-      .connect(owner)
-      .point_buy(ownerSummoner, ...Object.values(ownerSummonerAttributes));
-
-    await attributes
-      .connect(address1)
-      .point_buy(
-        address1Summoner,
-        ...Object.values(address1SummonerAttributes)
-      );
-
-    corn = await Corn.deploy(rarityAddresses);
-    wheat = await Wheat.deploy(rarityAddresses);
-    tomato = await Tomato.deploy(rarityAddresses);
-    potato = await Potato.deploy(rarityAddresses);
+    corn = await Corn.deploy();
+    wheat = await Wheat.deploy();
+    tomato = await Tomato.deploy();
+    potato = await Potato.deploy();
   });
 
   beforeEach(async function () {
-    const Farm = await ethers.getContractFactory("BeginnerFarm");
-
-    farm = await Farm.deploy(
-      rarityAddresses,
-      corn.address,
-      wheat.address,
-      potato.address,
-      tomato.address
-    );
-    await farm.deployed();
-    await corn.connect(owner).addMinter(farm.address);
-    await wheat.connect(owner).addMinter(farm.address);
-    await potato.connect(owner).addMinter(farm.address);
-    await tomato.connect(owner).addMinter(farm.address);
+    farm = await farmUtils.deployBeginnerFarm(corn, wheat, tomato, potato);
   });
 
   describe("initialize", () => {
@@ -116,15 +56,17 @@ describe.only("BeginnerFarm", function () {
     });
 
     it("should farm a corn resource", async function () {
-      await rarity.connect(address1).approve(farm.address, address1Summoner);
+      await rarityUtils.contracts.rarity
+        .connect(address1)
+        .approve(farm.address, address1Summoner);
       await farm.connect(address1).farmCorn(address1Summoner);
       expect(await corn.balanceOf(address1Summoner)).to.equal(
         BigNumber.from("1000000000000000000")
       );
       expect(
         await expect(await farm.yield()).to.equal(
-          address1SummonerAttributes.strength +
-            address1SummonerAttributes.dexterity
+          rarityUtils.address1SummonerAttributes.strength +
+            rarityUtils.address1SummonerAttributes.dexterity
         )
       );
     });
@@ -169,23 +111,6 @@ describe.only("BeginnerFarm", function () {
         expect(await farm.paused()).to.equal(true);
       } catch (err) {
         expect(err.message).to.contain("Pause denied");
-      }
-    });
-
-    it("should set pause", async function () {
-      await farm.connect(owner).addPauser(address1.address);
-      await farm.connect(address1).pause();
-      expect(await farm.paused()).to.equal(true);
-    });
-  });
-
-  describe("pause", () => {
-    it("should error if not pauser", async function () {
-      try {
-        await farm.connect(owner).pause();
-      } catch (err) {
-        expect(err.message).to.contain("Pause denied");
-        expect(await farm.paused()).to.equal(false);
       }
     });
 

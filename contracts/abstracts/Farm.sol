@@ -23,16 +23,10 @@ abstract contract Farm is Rarity, Ownable, Pausable {
     string resource
   );
 
-  constructor(RarityAddresses memory _rarity) Rarity(_rarity) Ownable() {
+  constructor() Rarity() Ownable() {
     yield = 0;
     yieldBase = 21000;
     disaster = address(0);
-  }
-
-  function setRarity(RarityAddresses memory _rarity) external returns (bool) {
-    require(owner == msg.sender, "Must be owner");
-    _setRarityAddresses(_rarity);
-    return true;
   }
 
   function setOwner(address _owner) external returns (bool) {

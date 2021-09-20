@@ -6,7 +6,7 @@ import "../abstracts/Crop.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract Tomato is Crop {
-  constructor(RarityAddresses memory _rarity) RERC20(_rarity) {
+  constructor() RERC20() {
     name = "RarityFarms-Tomato";
     symbol = "TOMATO";
   }
