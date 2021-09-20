@@ -59,16 +59,21 @@ describe("BeginnerFarm", function () {
       await rarityUtils.contracts.rarity
         .connect(address1)
         .approve(farm.address, address1Summoner);
-      await farm.connect(address1).farmCorn(address1Summoner);
+      const result = await farm.connect(address1).farmCorn(address1Summoner);
       expect(await corn.balanceOf(address1Summoner)).to.equal(
         BigNumber.from("1000000000000000000")
       );
-      expect(
-        await expect(await farm.yield()).to.equal(
-          rarityUtils.address1SummonerAttributes.strength +
-            rarityUtils.address1SummonerAttributes.dexterity
-        )
-      );
+
+      const receipt = await result.wait();
+      const log = receipt.events?.filter((x) => {
+        return x.event == "FarmResource";
+      })[0];
+      // console.log(log.args.map((s) => s.toString()));
+      expect(log.args[0]).to.equal(address1Summoner);
+      expect(log.args[1]).to.equal(corn.address);
+      expect(log.args[2]).to.equal(BigNumber.from("1000000000000000000"));
+      expect(log.args[3]).to.equal(await farm.yield());
+      expect(log.args[3]).to.equal(log.args[4].mul(log.args[5]));
     });
   });
 
@@ -175,7 +180,7 @@ describe("BeginnerFarm", function () {
   describe("setDisaster", () => {
     it("should error if not owner", async function () {
       try {
-        await farm.connect(address1).setDisaster(randomAddress);
+        await farm.connect(address1).setDisaster(randomAddress, 100);
       } catch (err) {
         expect(err.message).to.contain("Must be owner");
         expect(await farm.disaster()).to.equal(nullAddress);
@@ -183,17 +188,18 @@ describe("BeginnerFarm", function () {
     });
 
     it("should set disaster", async function () {
-      await farm.connect(owner).setDisaster(randomAddress);
+      await farm.connect(owner).setDisaster(randomAddress, 127);
       expect(await farm.disaster()).to.equal(randomAddress);
       expect(await farm.pausers(randomAddress)).to.equal(true);
       expect(await farm.paused()).to.equal(true);
+      expect(await farm.yield()).to.equal(127);
     });
   });
 
   describe("clearDisaster", () => {
     it("should error if not owner or disaster", async function () {
       try {
-        await farm.connect(owner).setDisaster(randomAddress);
+        await farm.connect(owner).setDisaster(randomAddress, 127);
         await farm.connect(address1).clearDisaster();
       } catch (err) {
         expect(err.message).to.contain("Must be owner or disaster");
@@ -202,13 +208,13 @@ describe("BeginnerFarm", function () {
     });
 
     it("should clear disaster if owner", async function () {
-      await farm.connect(owner).setDisaster(randomAddress);
+      await farm.connect(owner).setDisaster(randomAddress, 127);
       await farm.connect(owner).clearDisaster();
       expect(await farm.disaster()).to.equal(nullAddress);
     });
 
     it("should clear disaster if disaster", async function () {
-      await farm.connect(owner).setDisaster(address1.address);
+      await farm.connect(owner).setDisaster(address1.address, 127);
       await farm.connect(address1).clearDisaster();
       expect(await farm.disaster()).to.equal(nullAddress);
       expect(await farm.pausers(randomAddress)).to.equal(false);

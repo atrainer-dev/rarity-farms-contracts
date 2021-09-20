@@ -141,7 +141,7 @@ describe("Locust", function () {
         2,
         disasterRequirements
       );
-      newfarm.connect(owner).setDisaster(newlocust.address);
+      newfarm.connect(owner).setDisaster(newlocust.address, 137);
       const summoner = await rarityUtils.summon(
         owner,
         2,

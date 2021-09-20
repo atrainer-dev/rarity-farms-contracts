@@ -18,14 +18,17 @@ abstract contract Farm is Rarity, Ownable, Pausable {
   address public disaster;
 
   event FarmResource(
-    address indexed sender,
-    uint256 indexed nft,
-    string resource
+    uint256 indexed _summoner,
+    address _crop,
+    uint256 _amount,
+    uint256 _yield,
+    uint256 _roll,
+    uint256 _level
   );
 
   constructor() Rarity() Ownable() {
     yield = 0;
-    yieldBase = 21000;
+    yieldBase = 5000;
     disaster = address(0);
   }
 
@@ -35,18 +38,24 @@ abstract contract Farm is Rarity, Ownable, Pausable {
     return true;
   }
 
-  function _farm(uint256 summoner, Crop crop) internal returns (bool) {
+  function _farm(uint256 _summoner, Crop _crop) internal {
     require(_isPaused() == false, "Farm not available");
-    // require(block.timestamp > log[summoner], "Summoner not available to farm");
-
-    _getRarity().adventure(summoner);
-    (uint32 s, uint32 d, , , , ) = _getRarityAttributes().ability_scores(
-      summoner
+    _getRarity().adventure(_summoner);
+    uint256[4] memory _stats = _getSummoner(_summoner);
+    uint32 _multiplier = _yieldMultiplier();
+    uint64 _amount = _multiplier * 1e18;
+    _crop.mint(_summoner, _amount);
+    uint256 _roll = _getRarityRandom().d20(_summoner);
+    uint256 _yield = _roll.mul(_stats[3]);
+    yield = yield.add(_yield);
+    emit FarmResource(
+      _summoner,
+      address(_crop),
+      _amount,
+      _yield,
+      _roll,
+      _stats[3]
     );
-    uint32 multiplier = _yieldMultiplier();
-    crop.mint(summoner, multiplier * 1e18);
-    yield = yield.add(s).add(d);
-    return true;
   }
 
   function _yieldMultiplier() internal view returns (uint32) {
@@ -73,10 +82,11 @@ abstract contract Farm is Rarity, Ownable, Pausable {
     yield = _yield;
   }
 
-  function setDisaster(address _addr) external {
+  function setDisaster(address _addr, uint256 _yield) external {
     require(_isOwner(msg.sender), "Must be owner");
     _addPauser(_addr);
     disaster = _addr;
+    yield = _yield;
     _pause();
   }
 
