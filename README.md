@@ -1,7 +1,24 @@
-# QuickStart
+# Installation
 
-1. npm install
-2. npx hardhat compile
-3. npx hardhat node --fork https://rpc.ftm.tools
-4. Open New Terminal
-5. npx hardhat test --network localhost
+```
+npm install
+npx hardhat compile
+```
+
+# Deploy Beginner Farm
+
+```
+npx hardhat run scripts/beginnerFarm.js --network localhost
+```
+
+# Testing
+
+```
+npx hardhat node --fork https://rpc.ftm.tools
+```
+
+Open New Terminal
+
+```
+npx hardhat test --network localhost
+```
