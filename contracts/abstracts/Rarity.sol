@@ -55,4 +55,32 @@ abstract contract Rarity {
   function _getRarityRandom() internal pure returns (rarity_random_codex) {
     return _random;
   }
+
+  function _getSummonerAttributes(uint256 _summoner)
+    internal
+    view
+    returns (uint32[6] memory)
+  {
+    (
+      uint32 _str,
+      uint32 _dex,
+      uint32 _con,
+      uint32 _int,
+      uint32 _wis,
+      uint32 _cha
+    ) = _getRarityAttributes().ability_scores(_summoner);
+    uint32[6] memory scores = [_str, _dex, _con, _int, _wis, _cha];
+    return scores;
+  }
+
+  function _getSummoner(uint256 _summoner)
+    internal
+    view
+    returns (uint256[4] memory)
+  {
+    (uint256 _xp, uint256 _log, uint256 _class, uint256 _level) = _getRarity()
+      .summoner(_summoner);
+    uint256[4] memory result = [_xp, _log, _class, _level];
+    return result;
+  }
 }

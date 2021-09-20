@@ -59,6 +59,82 @@ async function summoners() {
   return [ownerSummoner, address1Summoner];
 }
 
+async function summonAllSummoners(signer) {
+  const summonerId = await rarity.connect(signer).next_summoner();
+
+  await Promise.all([
+    rarity.connect(signer).summon(1),
+    rarity.connect(signer).summon(2),
+    rarity.connect(signer).summon(3),
+    rarity.connect(signer).summon(4),
+    rarity.connect(signer).summon(5),
+    rarity.connect(signer).summon(6),
+    rarity.connect(signer).summon(7),
+    rarity.connect(signer).summon(8),
+    rarity.connect(signer).summon(9),
+    rarity.connect(signer).summon(10),
+    rarity.connect(signer).summon(11),
+  ]);
+
+  await Promise.all([
+    attributes.connect(signer).point_buy(summonerId, 16, 15, 13, 12, 11, 10),
+    attributes
+      .connect(signer)
+      .point_buy(summonerId.add(1), 10, 11, 12, 13, 15, 16),
+    attributes
+      .connect(signer)
+      .point_buy(summonerId.add(2), 11, 10, 12, 15, 16, 13),
+    attributes
+      .connect(signer)
+      .point_buy(summonerId.add(3), 10, 11, 12, 15, 16, 13),
+    attributes
+      .connect(signer)
+      .point_buy(summonerId.add(4), 16, 13, 15, 12, 11, 10),
+    attributes
+      .connect(signer)
+      .point_buy(summonerId.add(5), 12, 11, 10, 15, 16, 13),
+    attributes
+      .connect(signer)
+      .point_buy(summonerId.add(6), 16, 15, 12, 13, 11, 10),
+    attributes
+      .connect(signer)
+      .point_buy(summonerId.add(7), 15, 16, 13, 12, 11, 10),
+    attributes
+      .connect(signer)
+      .point_buy(summonerId.add(8), 13, 16, 15, 12, 11, 10),
+    attributes
+      .connect(signer)
+      .point_buy(summonerId.add(9), 13, 11, 12, 15, 16, 10),
+    attributes
+      .connect(signer)
+      .point_buy(summonerId.add(10), 11, 13, 12, 15, 16, 10),
+  ]);
+
+  return [
+    summonerId,
+    summonerId.add(1),
+    summonerId.add(2),
+    summonerId.add(3),
+    summonerId.add(4),
+    summonerId.add(5),
+    summonerId.add(6),
+    summonerId.add(7),
+    summonerId.add(8),
+    summonerId.add(9),
+    summonerId.add(10),
+    summonerId.add(11),
+  ];
+}
+
+async function summon(signer, cl, attrs) {
+  const summonerId = await rarity.connect(signer).next_summoner();
+  await rarity.connect(signer).summon(cl);
+  await attributes
+    .connect(signer)
+    .point_buy(summonerId, ...Object.values(attrs));
+  return summonerId;
+}
+
 module.exports = {
   summoners,
   ownerSummonerAttributes,
@@ -67,4 +143,6 @@ module.exports = {
     rarity,
     attributes,
   },
+  summonAllSummoners,
+  summon,
 };

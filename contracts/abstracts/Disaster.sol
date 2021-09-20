@@ -20,80 +20,71 @@ abstract contract Disaster is Rarity, Ownable, Pausable {
   uint32 public attackAttr;
   Farm public farm;
 
-  rl._ability_scores public requirements;
+  uint32[6] public scoreRequirements;
+  uint32[11] public classMultipliers;
 
-  constructor() Rarity() Ownable() {
+  // Events
+  event Attack(
+    uint256 indexed _summoner,
+    uint256 attack,
+    uint256 roll,
+    uint256 multiplier,
+    uint256 power
+  );
+
+  event Cleared(uint256 indexed _summoner, bool _paused);
+
+  constructor(
+    Farm _farm,
+    uint256 _hp,
+    uint32[6] memory _requirements
+  ) Rarity() Ownable() {
+    hp = _hp;
+    scoreRequirements = _requirements;
     damage = 0;
+    farm = _farm;
   }
 
-  function attack(uint256 _summoner) external returns (uint256) {
-    require(_scout(_summoner), "Your summoner is not powerful enough");
+  function attack(uint256 _summoner) external returns (uint256[4] memory) {
     require(_isPaused() == false, "Disaster has ended");
+    require(_isRarityOwner(_summoner), "Must be owner");
+    uint32[6] memory _scores = _getSummonerAttributes(_summoner);
+    uint256[4] memory _stats = _getSummoner(_summoner);
+    require(_scout(_scores), "Your summoner is not powerful enough");
+
     _getRarity().adventure(_summoner);
     uint256 roll = _getRarityRandom().d20(_summoner);
-    uint32 power = _getAttackPower(_summoner);
-    uint256 attackDamage = roll.mul(power);
+    uint32 power = _getAttackScore(_summoner);
+    uint32 multiplier = _getClassMultiplier(_stats[2]);
+    uint256 attackDamage = roll.mul(power).mul(multiplier);
     damage = damage.add(attackDamage);
     if (damage > hp) {
       _endDisaster();
+      emit Cleared(_summoner, paused);
     }
-    return attackDamage;
+    emit Attack(_summoner, attackDamage, roll, multiplier, power);
+    return [attackDamage, roll, multiplier, power];
   }
 
   function scout(uint256 _summoner) external view returns (bool) {
-    return _scout(_summoner);
+    uint32[6] memory _scores = _getSummonerAttributes(_summoner);
+    return _scout(_scores);
   }
 
-  function _scout(uint256 _summoner) internal view returns (bool) {
-    (
-      uint32 _str,
-      uint32 _dex,
-      uint32 _con,
-      uint32 _int,
-      uint32 _wis,
-      uint32 _cha
-    ) = _getRarityAttributes().ability_scores(_summoner);
-    if (_str < requirements._str) {
-      return false;
-    } else if (_dex < requirements._dex) {
-      return false;
-    } else if (_con < requirements._con) {
-      return false;
-    } else if (_int < requirements._int) {
-      return false;
-    } else if (_wis < requirements._wis) {
-      return false;
-    } else if (_cha < requirements._cha) {
-      return false;
+  function _scout(uint32[6] memory _scores) internal view returns (bool) {
+    uint256 arrayLength = scoreRequirements.length;
+    for (uint256 i = 0; i < arrayLength; i++) {
+      if (_scores[i] < scoreRequirements[i]) {
+        return false;
+      }
     }
 
     return true;
   }
 
-  function _getAttackPower(uint256 _summoner) internal view returns (uint32) {
-    (
-      uint32 _str,
-      uint32 _dex,
-      uint32 _con,
-      uint32 _int,
-      uint32 _wis,
-      uint32 _cha
-    ) = _getRarityAttributes().ability_scores(_summoner);
-    if (attackAttr == 1) {
-      return _str;
-    } else if (attackAttr == 2) {
-      return _dex;
-    } else if (attackAttr == 3) {
-      return _con;
-    } else if (attackAttr == 4) {
-      return _int;
-    } else if (attackAttr == 5) {
-      return _wis;
-    } else if (attackAttr == 6) {
-      return _cha;
-    }
-
-    return _str;
+  function _getAttackScore(uint256 _summoner) internal view returns (uint32) {
+    uint32[6] memory _scores = _getSummonerAttributes(_summoner);
+    return _scores[attackAttr.sub(1)];
   }
 
   function _endDisaster() internal {
@@ -101,19 +92,15 @@ abstract contract Disaster is Rarity, Ownable, Pausable {
     _pause();
   }
 
-  function _setRequirements(
-    uint32 _str,
-    uint32 _dex,
-    uint32 _con,
-    uint32 _int,
-    uint32 _wis,
-    uint32 _cha
-  ) internal {
-    requirements._str = _str;
-    requirements._dex = _dex;
-    requirements._con = _con;
-    requirements._int = _int;
-    requirements._wis = _wis;
-    requirements._cha = _cha;
+  function _getClassMultiplier(uint256 _class) internal view returns (uint32) {
+    return classMultipliers[_class.sub(1)];
+  }
+
+  function getClassMultipliers() external view returns (uint32[11] memory) {
+    return classMultipliers;
+  }
+
+  function getScoreRequirements() external view returns (uint32[6] memory) {
+    return scoreRequirements;
   }
 }
