@@ -63,6 +63,8 @@ interface rarity_manifested is IERC721 {
   function classes(uint256) external pure returns (string memory);
 
   function adventure(uint256) external;
+
+  function summon(uint256) external;
 }
 
 interface rarity_attributes {
@@ -81,6 +83,16 @@ interface rarity_attributes {
   function abilities_by_level(uint256 _level) external view returns (uint256);
 
   function character_created(uint256 _summoner) external view returns (bool);
+
+  function point_buy(
+    uint256 _summoner,
+    uint32 str,
+    uint32 con,
+    uint32 dex,
+    uint32 inte,
+    uint32 wis,
+    uint32 cha
+  ) external;
 }
 
 interface rarity_skills {
