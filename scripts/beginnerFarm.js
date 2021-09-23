@@ -28,13 +28,6 @@ async function main() {
     contracts[3].deploy(),
   ]);
 
-  console.log(`
-  Corn Address: ${crops[0].address}
-  Wheat Address: ${crops[1].address}
-  Potato Address: ${crops[2].address}
-  Tomato Address: ${crops[3].address}
-  `);
-
   const Farm = await ethers.getContractFactory("BeginnerFarm");
 
   farm = await Farm.deploy(
@@ -46,7 +39,11 @@ async function main() {
   await farm.deployed();
 
   console.log(`
-  Farm Address: ${farm.address}
+  CORN_ADDRESS=${crops[0].address}
+  WHEAT_ADDRESS=${crops[1].address}
+  POTATO_ADDRESS=${crops[2].address}
+  TOMATO_ADDRESS=${crops[3].address}
+  BEGINNER_FARM_ADDRESS=${farm.address}
   `);
 
   await Promise.all([

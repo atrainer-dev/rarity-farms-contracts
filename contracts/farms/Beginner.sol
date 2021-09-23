@@ -36,6 +36,19 @@ contract BeginnerFarm is Farm {
     yieldBase = 2000;
   }
 
+  function farm(uint256 summoner, uint8 resource) external {
+    require(resource > 0 && resource < 5, "Invalid Resource");
+    if (resource == 1) {
+      _farm(summoner, corn);
+    } else if (resource == 2) {
+      _farm(summoner, wheat);
+    } else if (resource == 3) {
+      _farm(summoner, potato);
+    } else if (resource == 4) {
+      _farm(summoner, tomato);
+    }
+  }
+
   function farmCorn(uint256 summoner) external {
     _farm(summoner, corn);
   }

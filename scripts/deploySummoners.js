@@ -49,8 +49,8 @@ async function main() {
     summonerIds.push(nextSummoner.add(i));
   }
   console.log(
-    `Summoner Ids`,
-    summonerIds.map((i) => i.toString())
+    "Summoner IDs: ",
+    JSON.stringify(summonerIds.map((i) => i.toString()))
   );
 }
 

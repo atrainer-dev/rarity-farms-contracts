@@ -11,7 +11,7 @@ describe("Proxy", function () {
     proxy = await Proxy.deploy();
   });
 
-  describe.only("massSummon", () => {
+  describe.only("massAssign", () => {
     it("should mass summon summoners", async function () {
       const result = await proxy.connect(owner).massSummon([1, 4, 6, 8]);
       const receipt = await result.wait();
