@@ -58,6 +58,10 @@ abstract contract Farm is Rarity, Ownable, Pausable {
     );
   }
 
+  function yieldMultiplier() external view returns (uint32) {
+    return _yieldMultiplier();
+  }
+
   function _yieldMultiplier() internal view returns (uint32) {
     if (yield < yieldBase) {
       return 1;

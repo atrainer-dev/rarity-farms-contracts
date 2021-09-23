@@ -39,11 +39,16 @@ async function main() {
   await farm.deployed();
 
   console.log(`
-  CORN_ADDRESS=${crops[0].address}
-  WHEAT_ADDRESS=${crops[1].address}
-  POTATO_ADDRESS=${crops[2].address}
-  TOMATO_ADDRESS=${crops[3].address}
-  BEGINNER_FARM_ADDRESS=${farm.address}
+  {
+      name: 'beginner',
+      address: '${farm.address}',
+      crops: [
+        '${crops[0].address}',
+        '${crops[1].address}',
+        '${crops[2].address}',
+        '${crops[3].address}',
+      ],
+    },
   `);
 
   await Promise.all([
