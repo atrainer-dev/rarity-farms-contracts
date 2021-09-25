@@ -15,8 +15,10 @@ abstract contract Disaster is Rarity, Ownable, Pausable {
   using SafeMath for uint32;
   using rl for *;
 
+  uint32 public id;
   uint256 public hp;
   uint256 public damage;
+  uint256 public farmDamage;
   uint32 public attackAttr;
   Farm public farm;
 
@@ -36,10 +38,12 @@ abstract contract Disaster is Rarity, Ownable, Pausable {
 
   constructor(
     Farm _farm,
+    uint256 _farmDamage,
     uint256 _hp,
     uint32[6] memory _requirements
   ) Rarity() Ownable() {
     hp = _hp;
+    farmDamage = _farmDamage;
     scoreRequirements = _requirements;
     damage = 0;
     farm = _farm;

@@ -8,7 +8,7 @@ const nullAddress = "0x0000000000000000000000000000000000000000";
 const rarityUtils = require("./utils/rarity.js");
 const farmUtils = require("./utils/farm.js");
 
-describe("Locust", function () {
+describe.only("Locust", function () {
   let owner,
     address1,
     ownerSummoner,
@@ -37,6 +37,7 @@ describe("Locust", function () {
     const Locust = await ethers.getContractFactory("Locust");
     locust = await Locust.deploy(
       farm.address,
+      2500,
       disasterHp,
       disasterRequirements
     );
@@ -49,6 +50,8 @@ describe("Locust", function () {
       expect(await locust.getClassMultipliers()).to.eql(classMultipliers);
       expect(await locust.damage()).to.equal(0);
       expect(await locust.attackAttr()).to.equal(1);
+      expect(await locust.farmDamage()).to.equal(2500);
+      expect();
     });
   });
 
@@ -138,6 +141,7 @@ describe("Locust", function () {
       const Locust = await ethers.getContractFactory("Locust");
       const newlocust = await Locust.deploy(
         newfarm.address,
+        2500,
         2,
         disasterRequirements
       );
