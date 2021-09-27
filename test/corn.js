@@ -72,6 +72,14 @@ describe("Corn", function () {
   });
 
   describe("Mint", () => {
+    it("should error if paused", async function () {
+      try {
+        await corn.connect(owner).pause();
+        await corn.connect(address1).mint(11, 11);
+      } catch (err) {
+        expect(err.message).to.contain("Contract is paused");
+      }
+    });
     it("should error if owner", async function () {
       try {
         expect(await corn.minters(owner.address)).to.be.equal(false);
@@ -105,6 +113,14 @@ describe("Corn", function () {
   });
 
   describe("Burn", () => {
+    it("should error if paused", async function () {
+      try {
+        await corn.connect(owner).pause();
+        await corn.connect(owner).burn(address1Summoner, 1);
+      } catch (err) {
+        expect(err.message).to.contain("Contract is paused");
+      }
+    });
     it("should error if not owner of NFT", async function () {
       try {
         await corn.connect(owner).addMinter(address1.address);
@@ -161,6 +177,14 @@ describe("Corn", function () {
   });
 
   describe("burnFrom", () => {
+    it("should error if paused", async function () {
+      try {
+        await corn.connect(owner).pause();
+        await corn.connect(owner).burnFrom(address1Summoner, 1001);
+      } catch (err) {
+        expect(err.message).to.contain("Contract is paused");
+      }
+    });
     it("should error if amount is greater than approval", async function () {
       try {
         await corn.connect(owner).addMinter(address1.address);
@@ -191,6 +215,19 @@ describe("Corn", function () {
   });
 
   describe("transfer", () => {
+    it("should error if paused", async function () {
+      try {
+        await corn.connect(owner).addMinter(owner.address);
+        await corn.connect(owner).mint(ownerSummoner, 1000);
+        await corn.connect(owner).pause();
+        await corn
+          .connect(owner)
+          .transfer(ownerSummoner, address1Summoner, 500);
+        expect(await corn.balanceOf(address1Summoner)).to.equal(500);
+      } catch (err) {
+        expect(err.message).to.contain("Contract is paused");
+      }
+    });
     it("should error if you don't own the NFT", async function () {
       try {
         await corn.connect(owner).addMinter(owner.address);
@@ -239,6 +276,20 @@ describe("Corn", function () {
   });
 
   describe("transferFrom", () => {
+    it("should error if paused", async function () {
+      try {
+        await corn.connect(owner).addMinter(owner.address);
+        await corn.connect(owner).mint(ownerSummoner, 1000);
+        await corn.connect(owner).approve(ownerSummoner, address1Summoner, 500);
+        await corn.connect(owner).pause();
+        await corn
+          .connect(address1)
+          .transferFrom(ownerSummoner, ownerSummoner, address1Summoner, 500);
+      } catch (err) {
+        expect(err.message).to.contain("Contract is paused");
+      }
+    });
+
     it("should error if you don't own the NFT", async function () {
       try {
         await corn.connect(owner).addMinter(owner.address);

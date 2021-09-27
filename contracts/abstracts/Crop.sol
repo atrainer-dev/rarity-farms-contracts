@@ -12,6 +12,7 @@ abstract contract Crop is RERC20, RarityBurnable, RarityMintable {
   using SafeMath for uint256;
 
   function mint(uint256 summoner, uint256 amount) external returns (bool) {
+    require(!_isPaused(), "Contract is paused");
     require(minters[msg.sender] == true, "Mint Access Denied");
     _mint(summoner, amount);
     return true;
@@ -30,12 +31,14 @@ abstract contract Crop is RERC20, RarityBurnable, RarityMintable {
   }
 
   function burn(uint256 summoner, uint256 amount) external returns (bool) {
+    require(!_isPaused(), "Contract is paused");
     require(_isRarityOwner(summoner), "Must be owner");
     _burn(summoner, amount);
     return true;
   }
 
   function burnFrom(uint256 summoner, uint256 amount) external returns (bool) {
+    require(!_isPaused(), "Contract is paused");
     uint256 allowance = burnAllowance[msg.sender][summoner];
     require(amount <= allowance, "Requested Burn greater than approval");
     _burn(summoner, amount);
@@ -48,6 +51,7 @@ abstract contract Crop is RERC20, RarityBurnable, RarityMintable {
     address burner,
     uint256 amount
   ) external returns (bool) {
+    require(!_isPaused(), "Contract is paused");
     require(_isRarityOwner(summoner), "Must be owner");
     _burnApprove(summoner, burner, amount);
     return true;

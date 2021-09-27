@@ -24,8 +24,8 @@ async function main() {
   const disasters = [
     {
       farm: "0xFD471836031dc5108809D173A067e8486B9047A3",
-      damage: 2500,
-      hp: 3000,
+      damage: 22,
+      hp: 500,
       requirements: [14, 12, 10, 8, 8, 8],
       type: 0,
     },

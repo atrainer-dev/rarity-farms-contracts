@@ -8,7 +8,7 @@ const nullAddress = "0x0000000000000000000000000000000000000000";
 const rarityUtils = require("./utils/rarity.js");
 const farmUtils = require("./utils/farm.js");
 
-describe.only("Locust", function () {
+describe("Locust", function () {
   let owner,
     address1,
     ownerSummoner,

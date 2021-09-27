@@ -5,8 +5,9 @@ import "hardhat/console.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./Rarity.sol";
 import "./Ownable.sol";
+import "./Pausable.sol";
 
-abstract contract RERC20 is Rarity, Ownable {
+abstract contract RERC20 is Rarity, Ownable, Pausable {
   using SafeMath for uint256;
   string public name;
   string public symbol;
@@ -23,7 +24,7 @@ abstract contract RERC20 is Rarity, Ownable {
     uint256 amount
   );
 
-  constructor() Rarity() Ownable() {}
+  constructor() Rarity() Ownable() Pausable() {}
 
   function approve(
     uint256 from,
@@ -42,6 +43,7 @@ abstract contract RERC20 is Rarity, Ownable {
     uint256 to,
     uint256 amount
   ) external returns (bool) {
+    require(!_isPaused(), "Contract is paused");
     require(_isRarityApprovedOrOwner(from), "Must be owner");
     _transferTokens(from, to, amount);
     return true;
@@ -53,6 +55,7 @@ abstract contract RERC20 is Rarity, Ownable {
     uint256 to,
     uint256 amount
   ) external returns (bool) {
+    require(!_isPaused(), "Contract is paused");
     require(_isRarityApprovedOrOwner(executor), "Must be owner");
     uint256 spender = executor;
     uint256 allowance = transferAllowance[from][spender];
