@@ -17,8 +17,8 @@ async function main() {
   const contracts = await Promise.all([
     ethers.getContractFactory("Corn"),
     ethers.getContractFactory("Wheat"),
-    ethers.getContractFactory("Potato"),
-    ethers.getContractFactory("Tomato"),
+    ethers.getContractFactory("Beans"),
+    ethers.getContractFactory("Barley"),
   ]);
 
   const crops = await Promise.all([

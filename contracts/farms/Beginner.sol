@@ -6,8 +6,8 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "../abstracts/Farm.sol";
 import "../crops/Corn.sol";
 import "../crops/Wheat.sol";
-import "../crops/Potato.sol";
-import "../crops/Tomato.sol";
+import "../crops/Beans.sol";
+import "../crops/Barley.sol";
 
 contract BeginnerFarm is Farm {
   using SafeMath for uint256;
@@ -17,21 +17,21 @@ contract BeginnerFarm is Farm {
 
   Corn public corn;
   Wheat public wheat;
-  Tomato public tomato;
-  Potato public potato;
+  Beans public beans;
+  Barley public barley;
 
   // Events
 
   constructor(
     Corn _corn,
     Wheat _wheat,
-    Potato _potato,
-    Tomato _tomato
+    Beans _beans,
+    Barley _barley
   ) Farm() {
     corn = _corn;
     wheat = _wheat;
-    potato = _potato;
-    tomato = _tomato;
+    beans = _beans;
+    barley = _barley;
 
     yieldBase = 2000;
   }
@@ -43,9 +43,9 @@ contract BeginnerFarm is Farm {
     } else if (resource == 2) {
       _farm(summoner, wheat);
     } else if (resource == 3) {
-      _farm(summoner, potato);
+      _farm(summoner, beans);
     } else if (resource == 4) {
-      _farm(summoner, tomato);
+      _farm(summoner, barley);
     }
   }
 
@@ -57,12 +57,12 @@ contract BeginnerFarm is Farm {
     _farm(summoner, wheat);
   }
 
-  function farmPotato(uint256 summoner) external {
-    _farm(summoner, potato);
+  function farmBeans(uint256 summoner) external {
+    _farm(summoner, beans);
   }
 
-  function farmTomato(uint256 summoner) external {
-    _farm(summoner, tomato);
+  function farmBarley(uint256 summoner) external {
+    _farm(summoner, barley);
   }
 
   function addPauser(address addr) external {

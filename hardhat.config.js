@@ -28,6 +28,11 @@ module.exports = {
       initialBaseFeePerGas: 0, // workaround from https://github.com/sc-forks/solidity-coverage/issues/652#issuecomment-896330136 . Remove when that issue is closed.
       chainId: 1337,
     },
+    fantom: {
+      url: `https://rpc.ftm.tools`,
+      chainId: 250,
+      accounts: [`0x${process.env.FANTOM_PRIVATE_KEY}`],
+    },
   },
   gasReporter: {
     enabled: process.env.REPORT_GAS !== undefined,

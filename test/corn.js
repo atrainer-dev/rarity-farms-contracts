@@ -200,17 +200,23 @@ describe("Corn", function () {
 
     it("should succeed if approved and balance exists", async function () {
       await corn.connect(owner).addMinter(address1.address);
-      await corn.connect(address1).mint(address1Summoner, 1000);
+      await corn.connect(address1).mint(address1Summoner, 10000);
       await corn
         .connect(address1)
         .burnApprove(address1Summoner, owner.address, 1000);
       expect(
         await corn.burnAllowance(owner.address, address1Summoner)
       ).to.equal(1000);
+      const supply = await corn.totalSupply();
+      const summonerSupply = await corn.balanceOf(address1Summoner);
       await corn.connect(owner).burnFrom(address1Summoner, 1000);
       expect(
         await corn.burnAllowance(owner.address, address1Summoner)
       ).to.equal(0);
+      expect(await corn.totalSupply()).to.equal(supply.sub(1000));
+      expect(await corn.balanceOf(address1Summoner)).to.equal(
+        summonerSupply.sub(1000)
+      );
     });
   });
 

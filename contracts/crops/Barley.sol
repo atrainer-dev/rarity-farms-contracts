@@ -5,9 +5,9 @@ import "hardhat/console.sol";
 import "../abstracts/Crop.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract Tomato is Crop {
+contract Barley is Crop {
   constructor() RERC20() {
-    name = "RarityFarms-Tomato";
-    symbol = "TOMATO";
+    name = "RarityFarms-Barley";
+    symbol = "BARLEY";
   }
 }
