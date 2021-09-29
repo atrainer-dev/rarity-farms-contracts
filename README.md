@@ -1,10 +1,10 @@
 # Production Contracts
 
-- [Corn](https://ftmscan.com/address/0x8a40e9e2a7Dca2c8BA2e21Ef5B93714F77254357#code)
-- [Wheat](https://ftmscan.com/address/0x71A1De363a7E96DDf64f89927da8bd3cB6f2Ba23#code)
-- [Beans](https://ftmscan.com/address/0xc20e0079265d1fdbd44089398b625be45e73528f#code)
-- [Barley](https://ftmscan.com/address/0xe2C357b6187DD71474F9C78Ac9C3d5C0a9aC8209#code)
-- [Beginner Farm](https://ftmscan.com/address/0x1Cee75Ea4d70d350D0A37A29aA47Ba05b64220fD#code)
+- [Corn](https://ftmscan.com/address/0x622D3F10cC539306306D64ad6cb56Bd44B984547#code)
+- [Wheat](https://ftmscan.com/address/0x292F9f1f3eF79d9989949df80ABedD6b017bd7A8#code)
+- [Beans](https://ftmscan.com/address/0x25d57C90B5ce23317D6E997e207D8BB096B55DBB#code)
+- [Barley](https://ftmscan.com/address/0x7eB37920c52AE4c5e3E0B0BBF2303741672705e3#code)
+- [Beginner Farm](https://ftmscan.com/address/0x93705e6d32097A56602eAa433fce73F5F94E1d33#code)
 
 # Installation
 
