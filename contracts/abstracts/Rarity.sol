@@ -6,6 +6,11 @@ interface IRarity {
 
   function getApproved(uint256) external view returns (address);
 
+  function isApprovedForAll(address owner, address operator)
+    external
+    view
+    returns (bool);
+
   function ownerOf(uint256) external view returns (address);
 
   function summoner(uint256)
@@ -49,11 +54,13 @@ abstract contract Rarity {
   constructor() {}
 
   function _isRarityOwner(uint256 _summoner) internal view returns (bool) {
-    return _getRarity().ownerOf(_summoner) == msg.sender;
+    return _rm.ownerOf(_summoner) == msg.sender;
   }
 
   function _isRarityApproved(uint256 _summoner) internal view returns (bool) {
-    return _getRarity().getApproved(_summoner) == msg.sender;
+    return
+      _rm.getApproved(_summoner) == msg.sender ||
+      _rm.isApprovedForAll(_rm.ownerOf(_summoner), msg.sender);
   }
 
   function _isRarityApprovedOrOwner(uint256 _summoner)
@@ -88,7 +95,7 @@ abstract contract Rarity {
       uint32 _int,
       uint32 _wis,
       uint32 _cha
-    ) = _getRarityAttributes().ability_scores(_summoner);
+    ) = _attr.ability_scores(_summoner);
     uint32[6] memory scores = [_str, _dex, _con, _int, _wis, _cha];
     return scores;
   }
@@ -98,8 +105,9 @@ abstract contract Rarity {
     view
     returns (uint256[4] memory)
   {
-    (uint256 _xp, uint256 _log, uint256 _class, uint256 _level) = _getRarity()
-      .summoner(_summoner);
+    (uint256 _xp, uint256 _log, uint256 _class, uint256 _level) = _rm.summoner(
+      _summoner
+    );
     uint256[4] memory result = [_xp, _log, _class, _level];
     return result;
   }
