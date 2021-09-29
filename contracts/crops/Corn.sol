@@ -5,7 +5,7 @@ import "../abstracts/Crop.sol";
 
 contract Corn is Crop {
   constructor() RERC20() {
-    name = "RarityFarms-Corn";
-    symbol = "CORN";
+    _name = "RarityFarms-Corn";
+    _symbol = "CORN";
   }
 }

@@ -14,8 +14,8 @@ describe("BeginnerFarm", function () {
   let farm,
     corn,
     wheat,
-    tomato,
-    potato,
+    beans,
+    barley,
     owner,
     address1,
     ownerSummoner,
@@ -27,17 +27,17 @@ describe("BeginnerFarm", function () {
 
     const Corn = await ethers.getContractFactory("Corn");
     const Wheat = await ethers.getContractFactory("Wheat");
-    const Potato = await ethers.getContractFactory("Potato");
-    const Tomato = await ethers.getContractFactory("Tomato");
+    const Beans = await ethers.getContractFactory("Beans");
+    const Barley = await ethers.getContractFactory("Barley");
 
     corn = await Corn.deploy();
     wheat = await Wheat.deploy();
-    tomato = await Tomato.deploy();
-    potato = await Potato.deploy();
+    beans = await Beans.deploy();
+    barley = await Barley.deploy();
   });
 
   beforeEach(async function () {
-    farm = await farmUtils.deployBeginnerFarm(corn, wheat, tomato, potato);
+    farm = await farmUtils.deployBeginnerFarm(corn, wheat, beans, barley);
   });
 
   describe("initialize", () => {

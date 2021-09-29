@@ -11,9 +11,6 @@ interface ICrop {
 }
 
 abstract contract Farm is Rarity, Ownable, Pausable {
-  using SafeMath for uint256;
-  using SafeMath for uint32;
-
   uint256 public yield;
   uint32 public yieldBase;
   address public disaster;
@@ -47,8 +44,8 @@ abstract contract Farm is Rarity, Ownable, Pausable {
     uint64 _amount = _multiplier * 1e18;
     _crop.mint(_summoner, _amount);
     uint256 _roll = _getRarityRandom().d20(_summoner);
-    uint256 _yield = _roll.mul(_stats[3]);
-    yield = yield.add(_yield);
+    uint256 _yield = _roll * _stats[3];
+    yield = yield + _yield;
     emit FarmResource(
       _summoner,
       address(_crop),
@@ -66,11 +63,11 @@ abstract contract Farm is Rarity, Ownable, Pausable {
   function _yieldMultiplier() internal view returns (uint32) {
     if (yield < yieldBase) {
       return 1;
-    } else if (yield < yieldBase.mul(2)) {
+    } else if (yield < yieldBase * 2) {
       return 2;
-    } else if (yield < yieldBase.mul(3)) {
+    } else if (yield < yieldBase * 3) {
       return 3;
-    } else if (yield < yieldBase.mul(4)) {
+    } else if (yield < yieldBase * 4) {
       return 4;
     } else {
       return 5;

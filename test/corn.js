@@ -271,13 +271,11 @@ describe("Corn", function () {
     it("should succeed if you own the NFT", async function () {
       await corn.connect(owner).addMinter(owner.address);
       await corn.connect(owner).mint(ownerSummoner, 1000);
-      expect(
-        await corn.transferAllowance(ownerSummoner, address1Summoner)
-      ).to.equal(0);
+      expect(await corn.allowance(ownerSummoner, address1Summoner)).to.equal(0);
       await corn.connect(owner).approve(ownerSummoner, address1Summoner, 500);
-      expect(
-        await corn.transferAllowance(ownerSummoner, address1Summoner)
-      ).to.equal(500);
+      expect(await corn.allowance(ownerSummoner, address1Summoner)).to.equal(
+        500
+      );
     });
   });
 
@@ -340,17 +338,15 @@ describe("Corn", function () {
       await corn.connect(owner).mint(ownerSummoner, 1000);
       await corn.connect(owner).approve(ownerSummoner, address1Summoner, 500);
       expect(await corn.balanceOf(address1Summoner)).to.equal(0);
-      expect(
-        await corn.transferAllowance(ownerSummoner, address1Summoner)
-      ).to.equal(500);
+      expect(await corn.allowance(ownerSummoner, address1Summoner)).to.equal(
+        500
+      );
       await corn
         .connect(address1)
         .transferFrom(address1Summoner, ownerSummoner, address1Summoner, 500);
 
       expect(await corn.balanceOf(address1Summoner)).to.equal(500);
-      expect(
-        await corn.transferAllowance(ownerSummoner, address1Summoner)
-      ).to.equal(0);
+      expect(await corn.allowance(ownerSummoner, address1Summoner)).to.equal(0);
     });
   });
 

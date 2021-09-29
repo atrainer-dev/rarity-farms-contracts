@@ -1,12 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./RERC20.sol";
 
 abstract contract RarityBurnable is RERC20 {
-  using SafeMath for uint256;
-
   mapping(address => mapping(uint256 => uint256)) public burnAllowance;
 
   event Burn(uint256 indexed from, uint256 indexed to, uint256 amount);
@@ -23,10 +20,10 @@ abstract contract RarityBurnable is RERC20 {
   }
 
   function _burn(uint256 dst, uint256 amount) internal {
-    uint256 balance = balanceOf[dst];
+    uint256 balance = _balanceOf[dst];
     require(balance >= amount, "Balance too low");
-    totalSupply = totalSupply.sub(amount);
-    balanceOf[dst] = balance.sub(amount);
+    _totalSupply -= amount;
+    _balanceOf[dst] = balance - amount;
     emit Burn(dst, dst, amount);
   }
 }

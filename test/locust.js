@@ -15,8 +15,8 @@ describe("Locust", function () {
     address1Summoner,
     corn,
     wheat,
-    tomato,
-    potato,
+    beans,
+    barley,
     farm,
     locust;
 
@@ -29,11 +29,11 @@ describe("Locust", function () {
     this.timeout(50000);
     [owner, address1] = await ethers.getSigners();
     [ownerSummoner, address1Summoner] = await rarityUtils.summoners();
-    [corn, wheat, tomato, potato] = await farmUtils.deployBeginnerCrops();
+    [corn, wheat, beans, barley] = await farmUtils.deployBeginnerCrops();
   });
 
   beforeEach(async function () {
-    farm = await farmUtils.deployBeginnerFarm(corn, wheat, tomato, potato);
+    farm = await farmUtils.deployBeginnerFarm(corn, wheat, beans, barley);
     const Locust = await ethers.getContractFactory("Locust");
     locust = await Locust.deploy(
       farm.address,
@@ -135,8 +135,8 @@ describe("Locust", function () {
       const newfarm = await farmUtils.deployBeginnerFarm(
         corn,
         wheat,
-        tomato,
-        potato
+        beans,
+        barley
       );
       const Locust = await ethers.getContractFactory("Locust");
       const newlocust = await Locust.deploy(

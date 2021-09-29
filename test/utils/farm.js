@@ -4,8 +4,8 @@ async function deployBeginnerCrops() {
   const contracts = await Promise.all([
     ethers.getContractFactory("Corn"),
     ethers.getContractFactory("Wheat"),
-    ethers.getContractFactory("Potato"),
-    ethers.getContractFactory("Tomato"),
+    ethers.getContractFactory("Beans"),
+    ethers.getContractFactory("Barley"),
   ]);
 
   const deployed = await Promise.all([
@@ -18,7 +18,7 @@ async function deployBeginnerCrops() {
   return deployed;
 }
 
-async function deployBeginnerFarm(corn, wheat, potato, tomato) {
+async function deployBeginnerFarm(corn, wheat, beans, barley) {
   [owner, address1] = await ethers.getSigners();
 
   const Farm = await ethers.getContractFactory("BeginnerFarm");
@@ -26,16 +26,16 @@ async function deployBeginnerFarm(corn, wheat, potato, tomato) {
   farm = await Farm.deploy(
     corn.address,
     wheat.address,
-    potato.address,
-    tomato.address
+    beans.address,
+    barley.address
   );
   await farm.deployed();
 
   await Promise.all([
     corn.connect(owner).addMinter(farm.address),
     wheat.connect(owner).addMinter(farm.address),
-    potato.connect(owner).addMinter(farm.address),
-    tomato.connect(owner).addMinter(farm.address),
+    beans.connect(owner).addMinter(farm.address),
+    barley.connect(owner).addMinter(farm.address),
   ]);
 
   return farm;

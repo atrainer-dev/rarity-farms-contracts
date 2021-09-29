@@ -1,12 +1,9 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "../abstracts/Farm.sol";
 
 contract BeginnerFarm is Farm {
-  using SafeMath for uint256;
-
   string public constant name = "RarityFarms";
   string public constant symbol = "BFARM";
 
@@ -28,7 +25,7 @@ contract BeginnerFarm is Farm {
     beans = ICrop(_beans);
     barley = ICrop(_barley);
 
-    yieldBase = 2000;
+    yieldBase = 5000;
   }
 
   function farm(uint256 summoner, uint8 resource) external {

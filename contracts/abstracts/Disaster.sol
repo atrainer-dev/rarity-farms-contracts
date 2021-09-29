@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./Rarity.sol";
 import "./Ownable.sol";
 import "./Pausable.sol";
@@ -12,9 +11,6 @@ interface IFarm {
 }
 
 abstract contract Disaster is Rarity, Ownable, Pausable {
-  using SafeMath for uint256;
-  using SafeMath for uint32;
-
   uint32 public id;
   uint256 public hp;
   uint256 public damage;
@@ -60,8 +56,8 @@ abstract contract Disaster is Rarity, Ownable, Pausable {
     uint256 roll = _getRarityRandom().d20(_summoner);
     uint32 power = _getAttackScore(_summoner);
     uint32 multiplier = _getClassMultiplier(_stats[2]);
-    uint256 attackDamage = roll.mul(power).mul(multiplier);
-    damage = damage.add(attackDamage);
+    uint256 attackDamage = roll * power * multiplier;
+    damage += attackDamage;
     if (damage > hp) {
       _endDisaster();
       emit Cleared(_summoner, paused);
@@ -88,7 +84,7 @@ abstract contract Disaster is Rarity, Ownable, Pausable {
 
   function _getAttackScore(uint256 _summoner) internal view returns (uint32) {
     uint32[6] memory _scores = _getSummonerAttributes(_summoner);
-    return _scores[attackAttr.sub(1)];
+    return _scores[attackAttr - 1];
   }
 
   function _endDisaster() internal {
@@ -97,7 +93,7 @@ abstract contract Disaster is Rarity, Ownable, Pausable {
   }
 
   function _getClassMultiplier(uint256 _class) internal view returns (uint32) {
-    return classMultipliers[_class.sub(1)];
+    return classMultipliers[_class - 1];
   }
 
   function getClassMultipliers() external view returns (uint32[11] memory) {
