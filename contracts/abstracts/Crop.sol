@@ -1,9 +1,7 @@
-//SPDX-License-Identifier: Unlicense
-pragma solidity ^0.8.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.7;
 
-import "hardhat/console.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-
 import "./RERC20.sol";
 import "./Mintable.sol";
 import "./Burnable.sol";
@@ -11,49 +9,43 @@ import "./Burnable.sol";
 abstract contract Crop is RERC20, RarityBurnable, RarityMintable {
   using SafeMath for uint256;
 
-  function mint(uint256 summoner, uint256 amount) external returns (bool) {
+  function mint(uint256 summoner, uint256 amount) external {
     require(!_isPaused(), "Contract is paused");
     require(minters[msg.sender] == true, "Mint Access Denied");
     _mint(summoner, amount);
-    return true;
   }
 
-  function addMinter(address minter) external returns (bool) {
+  function addMinter(address minter) external {
     require(msg.sender == owner, "Must be owner");
     _addMinter(minter);
-    return true;
   }
 
-  function removeMinter(address minter) external returns (bool) {
+  function removeMinter(address minter) external {
     require(msg.sender == owner, "Must be owner");
     _removeMinter(minter);
-    return true;
   }
 
-  function burn(uint256 summoner, uint256 amount) external returns (bool) {
+  function burn(uint256 summoner, uint256 amount) external {
     require(!_isPaused(), "Contract is paused");
     require(_isRarityOwner(summoner), "Must be owner");
     _burn(summoner, amount);
-    return true;
   }
 
-  function burnFrom(uint256 summoner, uint256 amount) external returns (bool) {
+  function burnFrom(uint256 summoner, uint256 amount) external {
     require(!_isPaused(), "Contract is paused");
     uint256 allowance = burnAllowance[msg.sender][summoner];
     require(amount <= allowance, "Requested Burn greater than approval");
     _burn(summoner, amount);
     burnAllowance[msg.sender][summoner] = allowance.sub(amount);
-    return true;
   }
 
   function burnApprove(
     uint256 summoner,
     address burner,
     uint256 amount
-  ) external returns (bool) {
+  ) external {
     require(!_isPaused(), "Contract is paused");
     require(_isRarityOwner(summoner), "Must be owner");
     _burnApprove(summoner, burner, amount);
-    return true;
   }
 }

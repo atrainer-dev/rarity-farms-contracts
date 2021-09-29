@@ -1,26 +1,26 @@
-//SPDX-License-Identifier: Unlicense
-pragma solidity ^0.8.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.7;
 
-import "hardhat/console.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-
 import "./Rarity.sol";
 import "./Ownable.sol";
 import "./Pausable.sol";
-import "../integration/rarity_structs.sol";
 import "./Farm.sol";
+
+interface IFarm {
+  function clearDisaster() external;
+}
 
 abstract contract Disaster is Rarity, Ownable, Pausable {
   using SafeMath for uint256;
   using SafeMath for uint32;
-  using rl for *;
 
   uint32 public id;
   uint256 public hp;
   uint256 public damage;
   uint256 public farmDamage;
   uint32 public attackAttr;
-  Farm public farm;
+  IFarm public farm;
 
   uint32[6] public scoreRequirements;
   uint32[11] public classMultipliers;
@@ -37,7 +37,7 @@ abstract contract Disaster is Rarity, Ownable, Pausable {
   event Cleared(uint256 indexed _summoner, bool _paused);
 
   constructor(
-    Farm _farm,
+    address _farm,
     uint256 _farmDamage,
     uint256 _hp,
     uint32[6] memory _requirements
@@ -46,7 +46,7 @@ abstract contract Disaster is Rarity, Ownable, Pausable {
     farmDamage = _farmDamage;
     scoreRequirements = _requirements;
     damage = 0;
-    farm = _farm;
+    farm = IFarm(_farm);
   }
 
   function attack(uint256 _summoner) external returns (uint256[4] memory) {

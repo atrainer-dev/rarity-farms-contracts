@@ -1,13 +1,14 @@
-//SPDX-License-Identifier: Unlicense
-pragma solidity ^0.8.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.7;
 
-import "hardhat/console.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-
 import "./Rarity.sol";
 import "./Ownable.sol";
 import "./Pausable.sol";
-import "./Crop.sol";
+
+interface ICrop {
+  function mint(uint256 summoner, uint256 amount) external;
+}
 
 abstract contract Farm is Rarity, Ownable, Pausable {
   using SafeMath for uint256;
@@ -38,7 +39,7 @@ abstract contract Farm is Rarity, Ownable, Pausable {
     return true;
   }
 
-  function _farm(uint256 _summoner, Crop _crop) internal {
+  function _farm(uint256 _summoner, ICrop _crop) internal {
     require(_isPaused() == false, "Farm not available");
     _getRarity().adventure(_summoner);
     uint256[4] memory _stats = _getSummoner(_summoner);

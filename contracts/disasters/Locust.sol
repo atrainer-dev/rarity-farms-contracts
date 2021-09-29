@@ -1,14 +1,11 @@
-//SPDX-License-Identifier: Unlicense
+//SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
-import "hardhat/console.sol";
 import "../abstracts/Disaster.sol";
-import "../integration/rarity_structs.sol";
-import "../abstracts/Farm.sol";
 
 contract Locust is Disaster {
   constructor(
-    Farm farm,
+    address farm,
     uint256 farmDamage,
     uint256 hp,
     uint32[6] memory _requirements

@@ -1,13 +1,8 @@
-//SPDX-License-Identifier: Unlicense
-pragma solidity ^0.8.0;
+//SPDX-License-Identifier: MIT
+pragma solidity ^0.8.7;
 
-import "hardhat/console.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "../abstracts/Farm.sol";
-import "../crops/Corn.sol";
-import "../crops/Wheat.sol";
-import "../crops/Beans.sol";
-import "../crops/Barley.sol";
 
 contract BeginnerFarm is Farm {
   using SafeMath for uint256;
@@ -15,23 +10,23 @@ contract BeginnerFarm is Farm {
   string public constant name = "RarityFarms";
   string public constant symbol = "BFARM";
 
-  Corn public corn;
-  Wheat public wheat;
-  Beans public beans;
-  Barley public barley;
+  ICrop public corn;
+  ICrop public wheat;
+  ICrop public beans;
+  ICrop public barley;
 
   // Events
 
   constructor(
-    Corn _corn,
-    Wheat _wheat,
-    Beans _beans,
-    Barley _barley
+    address _corn,
+    address _wheat,
+    address _beans,
+    address _barley
   ) Farm() {
-    corn = _corn;
-    wheat = _wheat;
-    beans = _beans;
-    barley = _barley;
+    corn = ICrop(_corn);
+    wheat = ICrop(_wheat);
+    beans = ICrop(_beans);
+    barley = ICrop(_barley);
 
     yieldBase = 2000;
   }

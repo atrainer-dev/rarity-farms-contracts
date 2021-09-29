@@ -4,9 +4,11 @@
 // When running the script with `npx hardhat run <script>` you'll find the Hardhat
 // Runtime Environment's members available in the global scope.
 const hre = require("hardhat");
+const { NonceManager } = require("@ethersproject/experimental");
 
 async function main() {
   const [deployer] = await ethers.getSigners();
+  const nonceManager = new NonceManager(deployer);
 
   console.log(`
   Deploying to network: ${process.env.HARDHAT_NETWORK}
@@ -22,15 +24,15 @@ async function main() {
   ]);
 
   const crops = await Promise.all([
-    contracts[0].deploy(),
-    contracts[1].deploy(),
-    contracts[2].deploy(),
-    contracts[3].deploy(),
+    contracts[0].connect(nonceManager).deploy(),
+    contracts[1].connect(nonceManager).deploy(),
+    contracts[2].connect(nonceManager).deploy(),
+    contracts[3].connect(nonceManager).deploy(),
   ]);
 
   const Farm = await ethers.getContractFactory("BeginnerFarm");
 
-  farm = await Farm.deploy(
+  farm = await Farm.connect(nonceManager).deploy(
     crops[0].address,
     crops[1].address,
     crops[2].address,
@@ -52,10 +54,10 @@ async function main() {
   `);
 
   await Promise.all([
-    crops[0].connect(deployer).addMinter(farm.address),
-    crops[1].connect(deployer).addMinter(farm.address),
-    crops[2].connect(deployer).addMinter(farm.address),
-    crops[3].connect(deployer).addMinter(farm.address),
+    crops[0].connect(nonceManager).addMinter(farm.address),
+    crops[1].connect(nonceManager).addMinter(farm.address),
+    crops[2].connect(nonceManager).addMinter(farm.address),
+    crops[3].connect(nonceManager).addMinter(farm.address),
   ]);
 }
 
