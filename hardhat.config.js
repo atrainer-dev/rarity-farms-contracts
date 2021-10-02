@@ -27,7 +27,7 @@ module.exports = {
   solidity: "0.8.7",
   namedAccounts: {
     deployer: 0,
-    tokenOwner: 1,
+    nondeployer: 1,
   },
   networks: {
     hardhat: {

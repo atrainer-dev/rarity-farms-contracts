@@ -1,0 +1,41 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/mill/Mill.sol": {
+      "content": "//SPDX-License-Identifier: MIT\npragma solidity ^0.8.7;\n\nimport \"../abstracts/Ownable.sol\";\nimport \"../abstracts/Pausable.sol\";\n\ninterface ICrop {\n  function burnFrom(uint256, uint256) external;\n\n  function balanceOf(uint256) external view returns (uint256);\n}\n\ninterface IRefinedResource {\n  function mint(uint256 summoner, uint256 amount) external;\n}\n\ncontract Mill is Ownable, Pausable {\n  uint8 public refiningCost = 10;\n\n  ICrop public corn;\n  ICrop public wheat;\n  ICrop public beans;\n  ICrop public barley;\n\n  IRefinedResource public meal;\n  IRefinedResource public flour;\n  IRefinedResource public oil;\n  IRefinedResource public malt;\n\n  constructor(\n    address _corn,\n    address _wheat,\n    address _beans,\n    address _barley,\n    address _meal,\n    address _flour,\n    address _oil,\n    address _malt\n  ) {\n    corn = ICrop(_corn);\n    wheat = ICrop(_wheat);\n    beans = ICrop(_beans);\n    barley = ICrop(_barley);\n    meal = IRefinedResource(_meal);\n    flour = IRefinedResource(_flour);\n    oil = IRefinedResource(_oil);\n    malt = IRefinedResource(_malt);\n  }\n\n  function refineCorn(uint256 summoner) external {\n    _refine(summoner, meal, corn);\n  }\n\n  function refineWheat(uint256 summoner) external {\n    _refine(summoner, flour, wheat);\n  }\n\n  function refineBeans(uint256 summoner) external {\n    _refine(summoner, oil, beans);\n  }\n\n  function refineBarley(uint256 summoner) external {\n    _refine(summoner, malt, barley);\n  }\n\n  function setRefiningCost(uint8 value) external {\n    require(_isOwner(msg.sender), \"Must be owner\");\n    refiningCost = value;\n  }\n\n  function _refine(\n    uint256 summoner,\n    IRefinedResource resource,\n    ICrop crop\n  ) internal {\n    require(_isPaused() == false, \"Farm not available\");\n    uint256 balance = crop.balanceOf(summoner);\n    require(balance >= refiningCost * 1e18, \"Crop balance too low\");\n    crop.burnFrom(summoner, refiningCost * 1e18);\n    resource.mint(summoner, 1 * 1e18);\n  }\n}\n"
+    },
+    "contracts/abstracts/Ownable.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.7;\n\nabstract contract Ownable {\n  address public owner;\n\n  constructor() {\n    owner = msg.sender;\n  }\n\n  function _isOwner(address addr) internal view returns (bool) {\n    return owner == addr;\n  }\n\n  function _setOwner(address addr) internal returns (bool) {\n    owner = addr;\n    return true;\n  }\n}\n"
+    },
+    "contracts/abstracts/Pausable.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.7;\n\nabstract contract Pausable {\n  bool public paused;\n  mapping(address => bool) public pausers;\n\n  constructor() {\n    paused = false;\n    pausers[msg.sender] = true;\n  }\n\n  function _isPaused() internal view returns (bool) {\n    return paused == true;\n  }\n\n  function pause() external returns (bool) {\n    require(pausers[msg.sender], \"Pause denied\");\n    _pause();\n    return true;\n  }\n\n  function unpause() external returns (bool) {\n    require(pausers[msg.sender], \"Unpause denied\");\n    _unpause();\n    return true;\n  }\n\n  function _addPauser(address addr) internal returns (bool) {\n    pausers[addr] = true;\n    return true;\n  }\n\n  function _removePauser(address addr) internal returns (bool) {\n    pausers[addr] = false;\n    return true;\n  }\n\n  function _pause() internal {\n    paused = true;\n  }\n\n  function _unpause() internal {\n    paused = false;\n  }\n}\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}

@@ -172,7 +172,7 @@ describe("Corn", function () {
         .burnApprove(address1Summoner, owner.address, 1000);
       expect(
         await corn.burnAllowance(owner.address, address1Summoner)
-      ).to.be.equal(1000);
+      ).to.equal(1000);
     });
   });
 

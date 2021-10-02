@@ -25,6 +25,21 @@ const address1SummonerAttributes = {
   charisma: 16,
 };
 
+async function newSummoners(deployer, nondeployer) {
+  const summonerId = await rarity.connect(deployer).next_summoner();
+  const summoners = await Promise.all([
+    rarity.connect(deployer).summon(3),
+    rarity.connect(nondeployer).summon(4),
+  ]);
+
+  const receipts = await Promise.all([
+    summoners[0].wait(),
+    summoners[1].wait(),
+  ]);
+
+  return [summonerId, summonerId.add(1)];
+}
+
 async function summoners() {
   [owner, address1] = await ethers.getSigners();
 
@@ -145,4 +160,5 @@ module.exports = {
   },
   summonAllSummoners,
   summon,
+  newSummoners,
 };
