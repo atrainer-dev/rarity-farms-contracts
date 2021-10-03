@@ -16,7 +16,7 @@ interface IRefinedResource {
 }
 
 contract Mill is Ownable, Pausable, Rarity {
-  uint8 public refiningCost = 2;
+  uint256 public refiningCost = 2 * 1e18;
 
   ICrop public corn;
   ICrop public wheat;
@@ -48,23 +48,23 @@ contract Mill is Ownable, Pausable, Rarity {
     malt = IRefinedResource(_malt);
   }
 
-  function refineCorn(uint256 summoner) external {
-    _refine(summoner, meal, corn);
+  function refineCorn(uint256 summoner, uint256 amount) external {
+    _refine(summoner, meal, corn, amount);
   }
 
-  function refineWheat(uint256 summoner) external {
-    _refine(summoner, flour, wheat);
+  function refineWheat(uint256 summoner, uint256 amount) external {
+    _refine(summoner, flour, wheat, amount);
   }
 
-  function refineBeans(uint256 summoner) external {
-    _refine(summoner, oil, beans);
+  function refineBeans(uint256 summoner, uint256 amount) external {
+    _refine(summoner, oil, beans, amount);
   }
 
-  function refineBarley(uint256 summoner) external {
-    _refine(summoner, malt, barley);
+  function refineBarley(uint256 summoner, uint256 amount) external {
+    _refine(summoner, malt, barley, amount);
   }
 
-  function setRefiningCost(uint8 value) external {
+  function setRefiningCost(uint256 value) external {
     require(_isOwner(msg.sender), "Must be owner");
     refiningCost = value;
   }
@@ -72,13 +72,18 @@ contract Mill is Ownable, Pausable, Rarity {
   function _refine(
     uint256 summoner,
     IRefinedResource resource,
-    ICrop crop
+    ICrop crop,
+    uint256 amount
   ) internal {
     require(_isRarityOwner(summoner), "Must own NFT");
     require(_isPaused() == false, "Mill not available");
+    require(
+      amount % refiningCost == 0,
+      "Amount must be divisible by refining cost"
+    );
     uint256 balance = crop.balanceOf(summoner);
-    require(balance >= refiningCost * 1e18, "Crop balance too low");
-    crop.burnFrom(summoner, refiningCost * 1e18);
-    resource.mint(summoner, 1 * 1e18);
+    require(balance >= amount, "Crop balance too low");
+    crop.burnFrom(summoner, amount);
+    resource.mint(summoner, (amount / refiningCost) * 1e18);
   }
 }
