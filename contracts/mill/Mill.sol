@@ -1,8 +1,7 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
-import "../abstracts/Ownable.sol";
-import "../abstracts/Pausable.sol";
+import "../abstracts/HasDisaster.sol";
 import "../abstracts/Rarity.sol";
 
 interface ICrop {
@@ -15,7 +14,7 @@ interface IRefinedResource {
   function mint(uint256 summoner, uint256 amount) external;
 }
 
-contract Mill is Ownable, Pausable, Rarity {
+contract Mill is HasDisaster, Rarity {
   uint256 public refiningCost = 2 * 1e18;
 
   ICrop public corn;

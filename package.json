@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "npx hardhat test --network localhost --deploy-fixture"
+    "test": "npx hardhat test --network localhost --deploy-fixture",
+    "node": "npx hardhat node --fork https://rpc.ftm.tools --show-accounts "
   },
   "keywords": [],
   "author": "",

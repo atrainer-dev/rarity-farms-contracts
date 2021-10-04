@@ -1,0 +1,44 @@
+{
+  "language": "Solidity",
+  "sources": {
+    "contracts/mill/Mill.sol": {
+      "content": "//SPDX-License-Identifier: MIT\npragma solidity ^0.8.7;\n\nimport \"../abstracts/Ownable.sol\";\nimport \"../abstracts/Pausable.sol\";\nimport \"../abstracts/Rarity.sol\";\n\ninterface ICrop {\n  function burnFrom(uint256, uint256) external;\n\n  function balanceOf(uint256) external view returns (uint256);\n}\n\ninterface IRefinedResource {\n  function mint(uint256 summoner, uint256 amount) external;\n}\n\ncontract Mill is Ownable, Pausable, Rarity {\n  uint256 public refiningCost = 2 * 1e18;\n\n  ICrop public corn;\n  ICrop public wheat;\n  ICrop public beans;\n  ICrop public barley;\n\n  IRefinedResource public meal;\n  IRefinedResource public flour;\n  IRefinedResource public oil;\n  IRefinedResource public malt;\n\n  constructor(\n    address _corn,\n    address _wheat,\n    address _beans,\n    address _barley,\n    address _meal,\n    address _flour,\n    address _oil,\n    address _malt\n  ) {\n    corn = ICrop(_corn);\n    wheat = ICrop(_wheat);\n    beans = ICrop(_beans);\n    barley = ICrop(_barley);\n    meal = IRefinedResource(_meal);\n    flour = IRefinedResource(_flour);\n    oil = IRefinedResource(_oil);\n    malt = IRefinedResource(_malt);\n  }\n\n  function refineCorn(uint256 summoner, uint256 amount) external {\n    _refine(summoner, meal, corn, amount);\n  }\n\n  function refineWheat(uint256 summoner, uint256 amount) external {\n    _refine(summoner, flour, wheat, amount);\n  }\n\n  function refineBeans(uint256 summoner, uint256 amount) external {\n    _refine(summoner, oil, beans, amount);\n  }\n\n  function refineBarley(uint256 summoner, uint256 amount) external {\n    _refine(summoner, malt, barley, amount);\n  }\n\n  function setRefiningCost(uint256 value) external {\n    require(_isOwner(msg.sender), \"Must be owner\");\n    refiningCost = value;\n  }\n\n  function _refine(\n    uint256 summoner,\n    IRefinedResource resource,\n    ICrop crop,\n    uint256 amount\n  ) internal {\n    require(_isRarityOwner(summoner), \"Must own NFT\");\n    require(_isPaused() == false, \"Mill not available\");\n    require(\n      amount % refiningCost == 0,\n      \"Amount must be divisible by refining cost\"\n    );\n    uint256 balance = crop.balanceOf(summoner);\n    require(balance >= amount, \"Crop balance too low\");\n    crop.burnFrom(summoner, amount);\n    resource.mint(summoner, (amount / refiningCost) * 1e18);\n  }\n}\n"
+    },
+    "contracts/abstracts/Ownable.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.7;\n\nabstract contract Ownable {\n  address public owner;\n\n  constructor() {\n    owner = msg.sender;\n  }\n\n  function _isOwner(address addr) internal view returns (bool) {\n    return owner == addr;\n  }\n\n  function _setOwner(address addr) internal returns (bool) {\n    owner = addr;\n    return true;\n  }\n}\n"
+    },
+    "contracts/abstracts/Pausable.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.7;\n\nabstract contract Pausable {\n  bool public paused;\n  mapping(address => bool) public pausers;\n\n  constructor() {\n    paused = false;\n    pausers[msg.sender] = true;\n  }\n\n  function _isPaused() internal view returns (bool) {\n    return paused == true;\n  }\n\n  function pause() external returns (bool) {\n    require(pausers[msg.sender], \"Pause denied\");\n    _pause();\n    return true;\n  }\n\n  function unpause() external returns (bool) {\n    require(pausers[msg.sender], \"Unpause denied\");\n    _unpause();\n    return true;\n  }\n\n  function _addPauser(address addr) internal returns (bool) {\n    pausers[addr] = true;\n    return true;\n  }\n\n  function _removePauser(address addr) internal returns (bool) {\n    pausers[addr] = false;\n    return true;\n  }\n\n  function _pause() internal {\n    paused = true;\n  }\n\n  function _unpause() internal {\n    paused = false;\n  }\n}\n"
+    },
+    "contracts/abstracts/Rarity.sol": {
+      "content": "// SPDX-License-Identifier: MIT\npragma solidity ^0.8.7;\n\ninterface IRarity {\n  function level(uint256) external view returns (uint256);\n\n  function getApproved(uint256) external view returns (address);\n\n  function isApprovedForAll(address owner, address operator)\n    external\n    view\n    returns (bool);\n\n  function ownerOf(uint256) external view returns (address);\n\n  function summoner(uint256)\n    external\n    view\n    returns (\n      uint256,\n      uint256,\n      uint256,\n      uint256\n    );\n\n  function adventure(uint256) external;\n}\n\ninterface IRarityAttributes {\n  function ability_scores(uint256)\n    external\n    view\n    returns (\n      uint32,\n      uint32,\n      uint32,\n      uint32,\n      uint32,\n      uint32\n    );\n}\n\ninterface IRarityRandomCodex {\n  function d20(uint256) external view returns (uint256);\n}\n\nabstract contract Rarity {\n  IRarity constant _rm = IRarity(0xce761D788DF608BD21bdd59d6f4B54b2e27F25Bb);\n  IRarityAttributes constant _attr =\n    IRarityAttributes(0xB5F5AF1087A8DA62A23b08C00C6ec9af21F397a1);\n  IRarityRandomCodex constant _random =\n    IRarityRandomCodex(0x7426dBE5207C2b5DaC57d8e55F0959fcD99661D4);\n\n  constructor() {}\n\n  function _isRarityOwner(uint256 _summoner) internal view returns (bool) {\n    return _rm.ownerOf(_summoner) == msg.sender;\n  }\n\n  function _isRarityApproved(uint256 _summoner) internal view returns (bool) {\n    return\n      _rm.getApproved(_summoner) == msg.sender ||\n      _rm.isApprovedForAll(_rm.ownerOf(_summoner), msg.sender);\n  }\n\n  function _isRarityApprovedOrOwner(uint256 _summoner)\n    internal\n    view\n    returns (bool)\n  {\n    return _isRarityApproved(_summoner) || _isRarityOwner(_summoner);\n  }\n\n  function _getRarity() internal pure returns (IRarity) {\n    return _rm;\n  }\n\n  function _getRarityAttributes() internal pure returns (IRarityAttributes) {\n    return _attr;\n  }\n\n  function _getRarityRandom() internal pure returns (IRarityRandomCodex) {\n    return _random;\n  }\n\n  function _getSummonerAttributes(uint256 _summoner)\n    internal\n    view\n    returns (uint32[6] memory)\n  {\n    (\n      uint32 _str,\n      uint32 _dex,\n      uint32 _con,\n      uint32 _int,\n      uint32 _wis,\n      uint32 _cha\n    ) = _attr.ability_scores(_summoner);\n    uint32[6] memory scores = [_str, _dex, _con, _int, _wis, _cha];\n    return scores;\n  }\n\n  function _getSummoner(uint256 _summoner)\n    internal\n    view\n    returns (uint256[4] memory)\n  {\n    (uint256 _xp, uint256 _log, uint256 _class, uint256 _level) = _rm.summoner(\n      _summoner\n    );\n    uint256[4] memory result = [_xp, _log, _class, _level];\n    return result;\n  }\n}\n"
+    }
+  },
+  "settings": {
+    "optimizer": {
+      "enabled": false,
+      "runs": 200
+    },
+    "outputSelection": {
+      "*": {
+        "*": [
+          "abi",
+          "evm.bytecode",
+          "evm.deployedBytecode",
+          "evm.methodIdentifiers",
+          "metadata",
+          "devdoc",
+          "userdoc",
+          "storageLayout",
+          "evm.gasEstimates"
+        ],
+        "": [
+          "ast"
+        ]
+      }
+    },
+    "metadata": {
+      "useLiteralContent": true
+    }
+  }
+}
