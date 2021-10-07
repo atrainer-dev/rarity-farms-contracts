@@ -7,6 +7,9 @@ const { expect } = chai;
 const rarityUtils = require("./utils/rarity.js");
 const { BigNumber, constants } = require("ethers");
 
+const randomAddress = "0x52dF56A3fa758c4542Fc92ad8485ED7183f2ab4d";
+const nullAddress = "0x0000000000000000000000000000000000000000";
+
 const setup = deployments.createFixture(async () => {
   const [deployer, nondeployer] = await ethers.getSigners();
   await deployments.fixture(["Mill"]);
@@ -64,34 +67,31 @@ describe("Mill", function () {
   });
 
   it("should deploy mill", async () => {
-    expect(await mill.refiningCost()).to.equal(constants.WeiPerEther.mul(2));
+    expect(await mill.getRefiningCosts()).to.eql([2, 2, 2, 2]);
+    expect(await mill.disaster()).to.equal(nullAddress);
   });
 
   describe("setRefiningCost", () => {
     it("should fail if not owner", async () => {
       try {
-        await mill
-          .connect(nondeployer)
-          .setRefiningCost(constants.WeiPerEther.mul(20));
+        await mill.connect(nondeployer).setRefiningCosts(2, 4, 3, 2);
       } catch (err) {
         expect(err.message).to.contain("Must be owner");
       }
     });
 
     it("should set refining costs if owner", async () => {
-      await mill
-        .connect(deployer)
-        .setRefiningCost(constants.WeiPerEther.mul(20));
-      expect(await mill.refiningCost()).to.equal(constants.WeiPerEther.mul(20));
+      await mill.connect(deployer).setRefiningCosts(2, 4, 3, 2);
+      expect(await mill.getRefiningCosts()).to.eql([2, 4, 3, 2]);
     });
   });
 
-  describe("refineCorn", () => {
+  describe("makeMeal", () => {
     it("should fail if not owner", async () => {
       try {
         await mill
           .connect(nondeployer)
-          .refineCorn(deployerSummoner, constants.WeiPerEther.mul(2));
+          .makeMeal(deployerSummoner, constants.WeiPerEther.mul(2));
       } catch (err) {
         expect(err.message).to.contain("Must own NFT");
       }
@@ -100,37 +100,21 @@ describe("Mill", function () {
     it("should fail if paused", async () => {
       try {
         await mill.connect(deployer).pause();
-        await mill.refineCorn(deployerSummoner, constants.WeiPerEther.mul(2));
+        await mill.makeMeal(deployerSummoner, constants.WeiPerEther.mul(2));
       } catch (err) {
         expect(err.message).to.contain("Mill not available");
       }
     });
 
-    it("should fail if not divisible by refining cost", async () => {
-      try {
-        await corn.connect(deployer).addMinter(deployer.address);
-        await corn
-          .connect(deployer)
-          .mint(deployerSummoner, constants.WeiPerEther.mul(10));
-        await mill
-          .connect(deployer)
-          .refineCorn(deployerSummoner, constants.WeiPerEther.mul(3));
-      } catch (err) {
-        expect(err.message).to.contain(
-          "Amount must be divisible by refining cost"
-        );
-      }
-    });
-
     it("should fail if balance too low", async () => {
       try {
-        const wheatBalance = await wheat
+        const cornBalance = await corn
           .connect(deployer)
           .balanceOf(deployerSummoner);
-        await wheat.burn(deployerSummoner, wheatBalance);
+        await corn.burn(deployerSummoner, cornBalance);
         await mill
           .connect(deployer)
-          .refineWheat(deployerSummoner, constants.WeiPerEther.mul(2));
+          .makeMeal(deployerSummoner, constants.WeiPerEther.mul(1));
       } catch (err) {
         expect(err.message).to.contain("Crop balance too low");
       }
@@ -152,7 +136,7 @@ describe("Mill", function () {
 
       await mill
         .connect(deployer)
-        .refineCorn(deployerSummoner, constants.WeiPerEther.mul(2));
+        .makeMeal(deployerSummoner, constants.WeiPerEther.mul(1));
       expect(await meal.connect(deployer).balanceOf(deployerSummoner)).to.equal(
         currentMeal.add(constants.WeiPerEther)
       );
@@ -177,17 +161,17 @@ describe("Mill", function () {
 
       await mill
         .connect(deployer)
-        .refineCorn(deployerSummoner, constants.WeiPerEther.mul(10));
+        .makeMeal(deployerSummoner, constants.WeiPerEther.mul(10));
       expect(await meal.connect(deployer).balanceOf(deployerSummoner)).to.equal(
-        currentMeal.add(constants.WeiPerEther.mul(5))
+        currentMeal.add(constants.WeiPerEther.mul(10))
       );
       expect(await corn.connect(deployer).balanceOf(deployerSummoner)).to.equal(
-        currentCorn.sub(constants.WeiPerEther.mul(10))
+        currentCorn.sub(constants.WeiPerEther.mul(10).mul(2))
       );
     });
   });
 
-  describe("refineWheat", () => {
+  describe("makeFlour", () => {
     it("should refine resource", async () => {
       const approve = constants.WeiPerEther.mul(1000);
       await wheat.connect(deployer).addMinter(deployer.address);
@@ -204,7 +188,7 @@ describe("Mill", function () {
 
       await mill
         .connect(deployer)
-        .refineWheat(deployerSummoner, constants.WeiPerEther.mul(2));
+        .makeFlour(deployerSummoner, constants.WeiPerEther.mul(1));
       expect(
         await flour.connect(deployer).balanceOf(deployerSummoner)
       ).to.equal(currentFlour.add(constants.WeiPerEther));
@@ -231,7 +215,7 @@ describe("Mill", function () {
 
       await mill
         .connect(deployer)
-        .refineBeans(deployerSummoner, constants.WeiPerEther.mul(2));
+        .makeOil(deployerSummoner, constants.WeiPerEther.mul(1));
       expect(await oil.connect(deployer).balanceOf(deployerSummoner)).to.equal(
         currentOil.add(constants.WeiPerEther)
       );
@@ -258,13 +242,57 @@ describe("Mill", function () {
 
       await mill
         .connect(deployer)
-        .refineBarley(deployerSummoner, constants.WeiPerEther.mul(2));
+        .makeMalt(deployerSummoner, constants.WeiPerEther.mul(1));
       expect(await malt.connect(deployer).balanceOf(deployerSummoner)).to.equal(
         currentMalt.add(constants.WeiPerEther)
       );
       expect(
         await barley.connect(deployer).balanceOf(deployerSummoner)
       ).to.equal(currentBarley.sub(constants.WeiPerEther.mul(2)));
+    });
+  });
+
+  describe("setDisaster", () => {
+    it("should error if not owner", async function () {
+      try {
+        await mill.connect(nondeployer).setDisaster(randomAddress);
+      } catch (err) {
+        expect(err.message).to.contain("Must be owner");
+        expect(await mill.disaster()).to.equal(nullAddress);
+      }
+    });
+
+    it("should set disaster", async function () {
+      await mill.connect(deployer).setDisaster(randomAddress);
+      expect(await mill.disaster()).to.equal(randomAddress);
+      expect(await mill.pausers(randomAddress)).to.equal(true);
+      expect(await mill.paused()).to.equal(true);
+    });
+  });
+
+  describe("clearDisaster", () => {
+    it("should error if not owner or disaster", async function () {
+      try {
+        await mill.connect(deployer).setDisaster(randomAddress);
+        await mill.connect(nondeployer).clearDisaster();
+      } catch (err) {
+        expect(err.message).to.contain("Must be owner or disaster");
+        expect(await mill.disaster()).to.equal(randomAddress);
+      }
+    });
+
+    it("should clear disaster if owner", async function () {
+      await mill.connect(deployer).setDisaster(randomAddress);
+      await mill.connect(deployer).clearDisaster();
+      expect(await mill.disaster()).to.equal(nullAddress);
+    });
+
+    it("should clear disaster if disaster", async function () {
+      await mill.connect(deployer).setDisaster(nondeployer.address);
+      await mill.connect(nondeployer).clearDisaster();
+      expect(await mill.disaster()).to.equal(nullAddress);
+      expect(await mill.pausers(randomAddress)).to.equal(false);
+      expect(await mill.paused()).to.equal(false);
     });
   });
 });

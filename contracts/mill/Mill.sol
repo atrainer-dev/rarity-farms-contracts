@@ -15,7 +15,7 @@ interface IRefinedResource {
 }
 
 contract Mill is HasDisaster, Rarity {
-  uint256 public refiningCost = 2 * 1e18;
+  uint8[4] public refiningCosts = [2, 2, 2, 2];
 
   ICrop public corn;
   ICrop public wheat;
@@ -47,42 +47,49 @@ contract Mill is HasDisaster, Rarity {
     malt = IRefinedResource(_malt);
   }
 
-  function refineCorn(uint256 summoner, uint256 amount) external {
-    _refine(summoner, meal, corn, amount);
+  function makeMeal(uint256 summoner, uint256 amount) external {
+    _refine(summoner, meal, corn, amount, refiningCosts[0]);
   }
 
-  function refineWheat(uint256 summoner, uint256 amount) external {
-    _refine(summoner, flour, wheat, amount);
+  function makeFlour(uint256 summoner, uint256 amount) external {
+    _refine(summoner, flour, wheat, amount, refiningCosts[1]);
   }
 
-  function refineBeans(uint256 summoner, uint256 amount) external {
-    _refine(summoner, oil, beans, amount);
+  function makeOil(uint256 summoner, uint256 amount) external {
+    _refine(summoner, oil, beans, amount, refiningCosts[2]);
   }
 
-  function refineBarley(uint256 summoner, uint256 amount) external {
-    _refine(summoner, malt, barley, amount);
+  function makeMalt(uint256 summoner, uint256 amount) external {
+    _refine(summoner, malt, barley, amount, refiningCosts[3]);
   }
 
-  function setRefiningCost(uint256 value) external {
+  function getRefiningCosts() external view returns (uint8[4] memory) {
+    return refiningCosts;
+  }
+
+  function setRefiningCosts(
+    uint8 cornCost,
+    uint8 wheatCost,
+    uint8 beansCost,
+    uint8 barleyCost
+  ) external {
     require(_isOwner(msg.sender), "Must be owner");
-    refiningCost = value;
+    refiningCosts = [cornCost, wheatCost, beansCost, barleyCost];
   }
 
   function _refine(
     uint256 summoner,
     IRefinedResource resource,
     ICrop crop,
-    uint256 amount
+    uint256 amount,
+    uint8 refiningCost
   ) internal {
     require(_isRarityOwner(summoner), "Must own NFT");
     require(_isPaused() == false, "Mill not available");
-    require(
-      amount % refiningCost == 0,
-      "Amount must be divisible by refining cost"
-    );
+    require(amount >= 1 * 1e18, "Amount too small");
     uint256 balance = crop.balanceOf(summoner);
-    require(balance >= amount, "Crop balance too low");
-    crop.burnFrom(summoner, amount);
-    resource.mint(summoner, (amount / refiningCost) * 1e18);
+    require(amount * refiningCost <= balance, "Crop balance too low");
+    crop.burnFrom(summoner, amount * refiningCost);
+    resource.mint(summoner, amount);
   }
 }

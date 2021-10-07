@@ -4,8 +4,14 @@ pragma solidity ^0.8.7;
 import "./RERC20.sol";
 import "./Mintable.sol";
 import "./Burnable.sol";
+import "./AbilityModifier.sol";
 
-abstract contract Resource is RERC20, RarityBurnable, RarityMintable {
+abstract contract Resource is
+  RERC20,
+  RarityBurnable,
+  RarityMintable,
+  AbilityModifier
+{
   function mint(uint256 summoner, uint256 amount) external {
     require(!_isPaused(), "Contract is paused");
     require(minters[msg.sender] == true, "Mint Access Denied");

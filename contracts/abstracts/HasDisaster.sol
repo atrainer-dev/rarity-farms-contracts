@@ -7,6 +7,10 @@ import "./Ownable.sol";
 abstract contract HasDisaster is Pausable, Ownable {
   address public disaster;
 
+  constructor() {
+    disaster = address(0);
+  }
+
   function setDisaster(address _addr) external {
     require(_isOwner(msg.sender), "Must be owner");
     _addPauser(_addr);
