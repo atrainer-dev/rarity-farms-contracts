@@ -74,5 +74,11 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     nonceManager
   );
   await maltContract.addMinter(mill.address);
+
+  console.log(`
+Mill Contract: ${mill.address}
+Mill Resource Contracts
+["${mealContract.address}", "${flourContract.address}", "${oilContract.address}", "${maltContract.address}"]
+`);
 };
 module.exports.tags = ["Mill"];
