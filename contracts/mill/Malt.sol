@@ -1,10 +1,10 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
-import "../abstracts/Crop.sol";
+import "../abstracts/Resource.sol";
 
-contract Malt is Crop {
-  constructor() RERC20() {
+contract Malt is Resource {
+  constructor() Resource(5) RERC20() {
     _name = "RarityFarms-Malt";
     _symbol = "MALT";
   }

@@ -14,29 +14,40 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     args: [corn.address, wheat.address, beans.address, barley.address],
     log: true,
   });
-  const cornContract = new ethers.Contract(
-    corn.address,
-    corn.abi,
-    nonceManager
-  );
-  await cornContract.addMinter(farm.address);
-  const wheatContract = new ethers.Contract(
-    wheat.address,
-    wheat.abi,
-    nonceManager
-  );
-  await wheatContract.addMinter(farm.address);
-  const beansContract = new ethers.Contract(
-    beans.address,
-    beans.abi,
-    nonceManager
-  );
-  await beansContract.addMinter(farm.address);
-  const barleyContract = new ethers.Contract(
-    barley.address,
-    barley.abi,
-    nonceManager
-  );
-  await barleyContract.addMinter(farm.address);
+
+  // May need noncemanager increment here
+
+  if (farm.newlyDeployed) {
+    const cornContract = new ethers.Contract(
+      corn.address,
+      corn.abi,
+      nonceManager
+    );
+    await cornContract.addMinter(farm.address);
+    const wheatContract = new ethers.Contract(
+      wheat.address,
+      wheat.abi,
+      nonceManager
+    );
+    await wheatContract.addMinter(farm.address);
+    const beansContract = new ethers.Contract(
+      beans.address,
+      beans.abi,
+      nonceManager
+    );
+    await beansContract.addMinter(farm.address);
+    const barleyContract = new ethers.Contract(
+      barley.address,
+      barley.abi,
+      nonceManager
+    );
+    await barleyContract.addMinter(farm.address);
+  }
+
+  console.log(`
+  Farm Contract: ${farm.address}
+  Farm Resource Contracts
+  ["${corn.address}", "${wheat.address}", "${beans.address}", "${barley.address}"]
+  `);
 };
 module.exports.tags = ["BeginnerFarm"];
