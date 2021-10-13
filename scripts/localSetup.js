@@ -12,10 +12,22 @@ const main = async () => {
   const { deployer } = await getNamedAccounts();
   const signer = await ethers.getSigner(deployer);
   const nonceManager = new NonceManager(signer);
+
   const corn = await deployments.get("Corn");
   const wheat = await deployments.get("Wheat");
   const beans = await deployments.get("Beans");
   const barley = await deployments.get("Barley");
+
+  const apple = await deployments.get("Apple");
+  const banana = await deployments.get("Banana");
+  const peach = await deployments.get("Peach");
+  const strawberry = await deployments.get("Strawberry");
+
+  const carrot = await deployments.get("Carrot");
+  const onion = await deployments.get("Onion");
+  const potato = await deployments.get("Potato");
+  const tomato = await deployments.get("Tomato");
+
   const meal = await deployments.get("Meal");
   const flour = await deployments.get("Flour");
   const oil = await deployments.get("Oil");
@@ -70,6 +82,102 @@ const main = async () => {
     )
   );
 
+  const appleContract = new ethers.Contract(
+    apple.address,
+    apple.abi,
+    nonceManager
+  );
+  await appleContract.addMinter(signer.address);
+  await Promise.all(
+    summoners.map((summoner) =>
+      appleContract.mint(summoner, constants.WeiPerEther.mul(10))
+    )
+  );
+
+  const bananaContract = new ethers.Contract(
+    banana.address,
+    banana.abi,
+    nonceManager
+  );
+  await bananaContract.addMinter(signer.address);
+  await Promise.all(
+    summoners.map((summoner) =>
+      bananaContract.mint(summoner, constants.WeiPerEther.mul(10))
+    )
+  );
+
+  const peachContract = new ethers.Contract(
+    peach.address,
+    peach.abi,
+    nonceManager
+  );
+  await peachContract.addMinter(signer.address);
+  await Promise.all(
+    summoners.map((summoner) =>
+      peachContract.mint(summoner, constants.WeiPerEther.mul(10))
+    )
+  );
+
+  const strawberryContract = new ethers.Contract(
+    strawberry.address,
+    strawberry.abi,
+    nonceManager
+  );
+  await strawberryContract.addMinter(signer.address);
+  await Promise.all(
+    summoners.map((summoner) =>
+      strawberryContract.mint(summoner, constants.WeiPerEther.mul(10))
+    )
+  );
+
+  const carrotContract = new ethers.Contract(
+    carrot.address,
+    carrot.abi,
+    nonceManager
+  );
+  await carrotContract.addMinter(signer.address);
+  await Promise.all(
+    summoners.map((summoner) =>
+      carrotContract.mint(summoner, constants.WeiPerEther.mul(10))
+    )
+  );
+
+  const onionContract = new ethers.Contract(
+    onion.address,
+    onion.abi,
+    nonceManager
+  );
+  await onionContract.addMinter(signer.address);
+  await Promise.all(
+    summoners.map((summoner) =>
+      onionContract.mint(summoner, constants.WeiPerEther.mul(10))
+    )
+  );
+
+  const potatoContract = new ethers.Contract(
+    potato.address,
+    potato.abi,
+    nonceManager
+  );
+  await potatoContract.addMinter(signer.address);
+  await Promise.all(
+    summoners.map((summoner) =>
+      potatoContract.mint(summoner, constants.WeiPerEther.mul(10))
+    )
+  );
+
+  const tomatoContract = new ethers.Contract(
+    tomato.address,
+    tomato.abi,
+    nonceManager
+  );
+  await tomatoContract.addMinter(signer.address);
+  await Promise.all(
+    summoners.map((summoner) =>
+      tomatoContract.mint(summoner, constants.WeiPerEther.mul(10))
+    )
+  );
+
   console.log("Seeding Mill Resources");
   const mealContract = new ethers.Contract(
     meal.address,
@@ -115,8 +223,9 @@ const main = async () => {
   );
 
   console.log(`
-Farm Contracts
-["${cornContract.address}", "${wheatContract.address}", "${beansContract.address}", "${barleyContract.address}"]
+Farm Contract: ${farm.address}
+Farm Resource Contracts:
+["${barley.address}", "${bean.address}", "${corn.address}", "${wheat.address}", "${apple.address}", "${banana.address}", "${peach.address}", "${strawberry.address}", "${carrot.address}", "${onion.address}", "${potato.address}", "${tomato.address}"]
 `);
 
   console.log(`

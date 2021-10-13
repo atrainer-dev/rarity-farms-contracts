@@ -4,8 +4,10 @@ pragma solidity ^0.8.7;
 import "../abstracts/Resource.sol";
 
 contract Oil is Resource {
-  constructor() Resource(5) RERC20() {
-    _name = "RarityFarms-Oil";
+  constructor() Resource() {
+    _name = "Oil";
     _symbol = "OIL";
+
+    attributes.weight = 5;
   }
 }

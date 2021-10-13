@@ -10,7 +10,7 @@ const farmUtils = require("./utils/farm.js");
 const randomAddress = "0x52dF56A3fa758c4542Fc92ad8485ED7183f2ab4d";
 const nullAddress = "0x0000000000000000000000000000000000000000";
 
-describe("BeginnerFarm", function () {
+describe.skip("BeginnerFarm", function () {
   let farm,
     corn,
     wheat,
