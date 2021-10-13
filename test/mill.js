@@ -19,7 +19,7 @@ const setup = deployments.createFixture(async () => {
   return [mill, summoners];
 });
 
-describe("Mill", function () {
+describe.skip("Mill", function () {
   let mill,
     corn,
     wheat,

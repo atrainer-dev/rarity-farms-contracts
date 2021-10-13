@@ -20,13 +20,12 @@ const setup = deployments.createFixture(async () => {
 });
 
 describe("Apple", function () {
-  let apple, corn, deployer, nondeployer, deployerSummoner, nondeployerSummoner;
+  let apple, deployer, nondeployer, deployerSummoner, nondeployerSummoner;
 
   before(async () => {
     const users = await getNamedAccounts();
     deployer = await ethers.getSigner(users.deployer);
     nondeployer = await ethers.getSigner(users.nondeployer);
-    corn = await ethers.getContract("Corn");
   });
 
   beforeEach(async () => {
@@ -40,8 +39,8 @@ describe("Apple", function () {
     expect(await apple.getPointIncreasers()).to.eql([0, 1, 0]);
     expect(await apple.getPointDecreasers()).to.eql([0, 0, 0]);
     expect(await apple.getWeight()).to.equal(8);
-    expect(await apple.getOwner()).to.equal(deployer.address);
-    expect(await apple.isPaused()).to.equal(false);
+    expect(await apple.owner()).to.equal(deployer.address);
+    expect(await apple.paused()).to.equal(false);
   });
 
   describe("Add Minter", () => {
@@ -421,9 +420,9 @@ describe("Apple", function () {
     });
 
     it("should change owner address", async function () {
-      expect(await apple.getOwner()).to.equal(deployer.address);
+      expect(await apple.owner()).to.equal(deployer.address);
       await apple.connect(deployer).setOwner(randomAddress);
-      expect(await apple.getOwner()).to.equal(randomAddress);
+      expect(await apple.owner()).to.equal(randomAddress);
     });
   });
 
@@ -437,9 +436,9 @@ describe("Apple", function () {
     });
 
     it("should lock the resource if owner", async () => {
-      expect(await apple.isLocked()).to.equal(false);
+      expect(await apple.locked()).to.equal(false);
       await apple.connect(deployer).lock();
-      expect(await apple.isLocked()).to.equal(true);
+      expect(await apple.locked()).to.equal(true);
     });
   });
 
@@ -557,9 +556,10 @@ describe("Apple", function () {
     });
 
     it("should set weight", async () => {
-      expect(await apple.getWeight()).to.eql(8);
-      await apple.connect(deployer).setWeight(1);
-      expect(await apple.getWeight()).to.equal(1);
+      expect(await apple.getWeight()).to.equal(8);
+
+      await apple.connect(deployer).setWeight(10);
+      expect(await apple.getWeight()).to.equal(10);
     });
   });
 });

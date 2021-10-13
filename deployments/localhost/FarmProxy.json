@@ -1,5 +1,5 @@
 {
-  "address": "0x720472c8ce72c2A2D711333e064ABD3E6BbEAdd3",
+  "address": "0x4C2F7092C2aE51D986bEFEe378e50BD4dB99C901",
   "abi": [
     {
       "inputs": [
@@ -53,26 +53,26 @@
       "type": "function"
     }
   ],
-  "transactionHash": "0x085c959fbb9a88893a8ed354a2759659f9028d84036368e41a9ff2ee5baa05c1",
+  "transactionHash": "0x5e45c897f4b6bf527563919d972fe2a66b974fcf999ef8850d2a2b8abb4e9dd7",
   "receipt": {
     "to": null,
     "from": "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266",
-    "contractAddress": "0x720472c8ce72c2A2D711333e064ABD3E6BbEAdd3",
+    "contractAddress": "0x4C2F7092C2aE51D986bEFEe378e50BD4dB99C901",
     "transactionIndex": 0,
     "gasUsed": "522921",
     "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-    "blockHash": "0x2ff3267def0d0b1e3338cf49f53e5b7238d49122b74e050bc69a01e70edc4191",
-    "transactionHash": "0x085c959fbb9a88893a8ed354a2759659f9028d84036368e41a9ff2ee5baa05c1",
+    "blockHash": "0x0818fe49050516b559db5ded880d31a3a038ac834cde76fd26dc66e6a491017c",
+    "transactionHash": "0x5e45c897f4b6bf527563919d972fe2a66b974fcf999ef8850d2a2b8abb4e9dd7",
     "logs": [],
-    "blockNumber": 18933171,
+    "blockNumber": 19023362,
     "cumulativeGasUsed": "522921",
     "status": 1,
     "byzantium": true
   },
   "args": [
-    "0x4631BCAbD6dF18D94796344963cB60d44a4136b6",
-    "0xD84379CEae14AA33C123Af12424A37803F885889",
-    "0x1c85638e118b37167e9298c2268758e058DdfDA0"
+    "0x2B0d36FACD61B71CC05ab8F3D2355ec3631C0dd5",
+    "0x51A1ceB83B83F1985a81C295d1fF28Afef186E02",
+    "0xf4B146FbA71F41E0592668ffbF264F1D186b2Ca8"
   ],
   "solcInputHash": "0646f8583f9c8fa3488c002332d9bd8c",
   "metadata": "{\"compiler\":{\"version\":\"0.8.7+commit.e28d00a7\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_grain\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_fruit\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_veggie\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"summoner\",\"type\":\"uint256\"},{\"internalType\":\"uint8\",\"name\":\"farm\",\"type\":\"uint8\"},{\"internalType\":\"uint8\",\"name\":\"resource\",\"type\":\"uint8\"}],\"internalType\":\"struct FarmProxy.Routine[]\",\"name\":\"routines\",\"type\":\"tuple[]\"}],\"name\":\"executeRoutines\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/proxies/FarmProxy.sol\":\"FarmProxy\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"contracts/abstracts/Rarity.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.7;\\n\\ninterface IRarity {\\n  function level(uint256) external view returns (uint256);\\n\\n  function getApproved(uint256) external view returns (address);\\n\\n  function isApprovedForAll(address owner, address operator)\\n    external\\n    view\\n    returns (bool);\\n\\n  function ownerOf(uint256) external view returns (address);\\n\\n  function summoner(uint256)\\n    external\\n    view\\n    returns (\\n      uint256,\\n      uint256,\\n      uint256,\\n      uint256\\n    );\\n\\n  function adventure(uint256) external;\\n}\\n\\ninterface IRarityAttributes {\\n  function ability_scores(uint256)\\n    external\\n    view\\n    returns (\\n      uint32,\\n      uint32,\\n      uint32,\\n      uint32,\\n      uint32,\\n      uint32\\n    );\\n}\\n\\ninterface IRarityRandomCodex {\\n  function d20(uint256) external view returns (uint256);\\n}\\n\\nabstract contract Rarity {\\n  IRarity constant _rm = IRarity(0xce761D788DF608BD21bdd59d6f4B54b2e27F25Bb);\\n  IRarityAttributes constant _attr =\\n    IRarityAttributes(0xB5F5AF1087A8DA62A23b08C00C6ec9af21F397a1);\\n  IRarityRandomCodex constant _random =\\n    IRarityRandomCodex(0x7426dBE5207C2b5DaC57d8e55F0959fcD99661D4);\\n\\n  constructor() {}\\n\\n  function _isRarityOwner(uint256 _summoner) internal view returns (bool) {\\n    return _rm.ownerOf(_summoner) == msg.sender;\\n  }\\n\\n  function _isRarityApproved(uint256 _summoner) internal view returns (bool) {\\n    return\\n      _rm.getApproved(_summoner) == msg.sender ||\\n      _rm.isApprovedForAll(_rm.ownerOf(_summoner), msg.sender);\\n  }\\n\\n  function _isRarityApprovedOrOwner(uint256 _summoner)\\n    internal\\n    view\\n    returns (bool)\\n  {\\n    return _isRarityApproved(_summoner) || _isRarityOwner(_summoner);\\n  }\\n\\n  function _getRarity() internal pure returns (IRarity) {\\n    return _rm;\\n  }\\n\\n  function _getRarityAttributes() internal pure returns (IRarityAttributes) {\\n    return _attr;\\n  }\\n\\n  function _getRarityRandom() internal pure returns (IRarityRandomCodex) {\\n    return _random;\\n  }\\n\\n  function _getSummonerAttributes(uint256 _summoner)\\n    internal\\n    view\\n    returns (uint32[6] memory)\\n  {\\n    (\\n      uint32 _str,\\n      uint32 _dex,\\n      uint32 _con,\\n      uint32 _int,\\n      uint32 _wis,\\n      uint32 _cha\\n    ) = _attr.ability_scores(_summoner);\\n    uint32[6] memory scores = [_str, _dex, _con, _int, _wis, _cha];\\n    return scores;\\n  }\\n\\n  function _getSummoner(uint256 _summoner)\\n    internal\\n    view\\n    returns (uint256[4] memory)\\n  {\\n    (uint256 _xp, uint256 _log, uint256 _class, uint256 _level) = _rm.summoner(\\n      _summoner\\n    );\\n    uint256[4] memory result = [_xp, _log, _class, _level];\\n    return result;\\n  }\\n}\\n\",\"keccak256\":\"0x3bbc694ec9e23e448ca912f2bd9510c567a2e69e582725f6b02e9e617b35f405\",\"license\":\"MIT\"},\"contracts/proxies/FarmProxy.sol\":{\"content\":\"//SPDX-License-Identifier: MIT\\npragma solidity ^0.8.7;\\n\\nimport \\\"../abstracts/Rarity.sol\\\";\\n\\ninterface IFarm {\\n  function farm(uint256 summoner, uint256 resource) external;\\n}\\n\\ninterface IRarityApprove {\\n  function setApprovalForAll(address operator, bool _approved) external;\\n}\\n\\ncontract FarmProxy is Rarity {\\n  IRarityApprove constant rmApprove =\\n    IRarityApprove(0xce761D788DF608BD21bdd59d6f4B54b2e27F25Bb);\\n\\n  IFarm private grain;\\n  IFarm private fruit;\\n  IFarm private veggie;\\n\\n  struct Routine {\\n    uint256 summoner;\\n    uint8 farm;\\n    uint8 resource;\\n  }\\n\\n  constructor(\\n    address _grain,\\n    address _fruit,\\n    address _veggie\\n  ) {\\n    grain = IFarm(_grain);\\n    fruit = IFarm(_fruit);\\n    veggie = IFarm(_veggie);\\n  }\\n\\n  function executeRoutines(Routine[] memory routines) external {\\n    uint256 arrayLength = routines.length;\\n    for (uint256 i = 0; i < arrayLength; i++) {\\n      if (routines[i].farm == 0) {\\n        grain.farm(routines[i].summoner, routines[i].resource);\\n      } else if (routines[i].farm == 1) {\\n        fruit.farm(routines[i].summoner, routines[i].resource);\\n      } else if (routines[i].farm == 2) {\\n        veggie.farm(routines[i].summoner, routines[i].resource);\\n      }\\n    }\\n  }\\n}\\n\",\"keccak256\":\"0x08c1d3afa11f3660154464a445ce2faad7bc0bc229d76c16199f6ad0e6c6c4ec\",\"license\":\"MIT\"}},\"version\":1}",

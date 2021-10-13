@@ -1,8 +1,6 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.7;
 
-import "./HasDisaster.sol";
-
 interface IRarity {
   function adventure(uint256) external;
 }
@@ -12,22 +10,19 @@ interface IResource {
 }
 
 abstract contract NewFarm {
-  IRarity constant rarity = IRarity(0xce761D788DF608BD21bdd59d6f4B54b2e27F25Bb);
+  bool public paused;
+  address public owner;
+  address public disaster;
+  IRarity private constant RARITY =
+    IRarity(0xce761D788DF608BD21bdd59d6f4B54b2e27F25Bb);
 
-  struct FarmAttributes {
-    bool paused;
-    address owner;
-    address disaster;
-    IResource one;
-    IResource two;
-    IResource three;
-    IResource four;
-    uint8[4] multipliers;
+  struct Resource {
+    IResource resource;
+    uint8 multiplier;
   }
 
-  FarmAttributes attributes;
-
   mapping(address => bool) public pausers;
+  mapping(uint8 => Resource) public resources;
 
   // Events
   event FarmResource(
@@ -42,37 +37,32 @@ abstract contract NewFarm {
     address _three,
     address _four
   ) {
-    attributes.one = IResource(_one);
-    attributes.two = IResource(_two);
-    attributes.three = IResource(_three);
-    attributes.four = IResource(_four);
-    attributes.disaster = address(0);
-    attributes.owner = msg.sender;
-    attributes.paused = false;
-    attributes.multipliers = [3, 3, 3, 3];
+    disaster = address(0);
+    owner = msg.sender;
+    paused = false;
+    resources[0].resource = IResource(_one);
+    resources[0].multiplier = 3;
+    resources[1].resource = IResource(_two);
+    resources[1].multiplier = 3;
+    resources[2].resource = IResource(_three);
+    resources[2].multiplier = 3;
+    resources[3].resource = IResource(_four);
+    resources[3].multiplier = 3;
   }
 
-  function farm(uint256 summoner, uint256 id) external {
+  function farm(uint256 summoner, uint8 id) external {
     require(id < 4, "Invalid Id");
-    if (id == 0) {
-      _farm(summoner, attributes.one, attributes.multipliers[id]);
-    } else if (id == 1) {
-      _farm(summoner, attributes.two, attributes.multipliers[id]);
-    } else if (id == 2) {
-      _farm(summoner, attributes.three, attributes.multipliers[id]);
-    } else if (id == 3) {
-      _farm(summoner, attributes.four, attributes.multipliers[id]);
-    }
+    _farm(summoner, resources[id]);
   }
 
   function pause() external {
     require(_isOwner(msg.sender) || pausers[msg.sender], "Must be owner");
-    attributes.paused = true;
+    paused = true;
   }
 
   function unpause() external {
     require(_isOwner(msg.sender) || pausers[msg.sender], "Must be owner");
-    attributes.paused = false;
+    paused = false;
   }
 
   function addPauser(address addr) external {
@@ -80,18 +70,16 @@ abstract contract NewFarm {
     pausers[addr] = true;
   }
 
-  function isPaused() external view returns (bool) {
-    return attributes.paused;
-  }
-
   function removePauser(address addr) external {
     require(_isOwner(msg.sender), "Must be owner");
     pausers[addr] = false;
   }
 
+  /*
   function getMultipliers() external view returns (uint8[4] memory) {
     return attributes.multipliers;
   }
+  */
 
   function setMultipliers(
     uint8 _one,
@@ -99,51 +87,43 @@ abstract contract NewFarm {
     uint8 _three,
     uint8 _four
   ) external {
-    attributes.multipliers = [_one, _two, _three, _four];
-  }
-
-  function getOwner() external view returns (address) {
-    return attributes.owner;
+    resources[0].multiplier = _one;
+    resources[1].multiplier = _two;
+    resources[2].multiplier = _three;
+    resources[3].multiplier = _four;
   }
 
   function setOwner(address _owner) external {
     require(_isOwner(msg.sender), "Must be owner");
-    attributes.owner = _owner;
-  }
-
-  function getDisaster() external view returns (address) {
-    return attributes.disaster;
+    owner = _owner;
   }
 
   function setDisaster(address _addr) external {
     require(_isOwner(msg.sender), "Must be owner");
     pausers[_addr] = true;
-    attributes.disaster = _addr;
-    attributes.paused = true;
+    disaster = _addr;
+    paused = true;
   }
 
   function clearDisaster() external {
     require(
-      _isOwner(msg.sender) || attributes.disaster == msg.sender,
+      _isOwner(msg.sender) || disaster == msg.sender,
       "Must be owner or disaster"
     );
     pausers[msg.sender] = false;
-    attributes.disaster = address(0);
-    attributes.paused = false;
+    disaster = address(0);
+    paused = false;
   }
 
   function _isOwner(address addr) internal view returns (bool) {
-    return attributes.owner == addr;
+    return owner == addr;
   }
 
-  function _farm(
-    uint256 _summoner,
-    IResource _resource,
-    uint256 _multiplier
-  ) internal {
-    require(!attributes.paused, "Farm not available");
-    rarity.adventure(_summoner);
-    _resource.mint(_summoner, _multiplier * 1e18);
-    emit FarmResource(_summoner, address(_resource), _multiplier * 1e18);
+  function _farm(uint256 _summoner, Resource memory _resource) internal {
+    require(!paused, "Farm not available");
+    RARITY.adventure(_summoner);
+    uint256 amount = _resource.multiplier * 1e18;
+    _resource.resource.mint(_summoner, amount);
+    emit FarmResource(_summoner, address(_resource.resource), amount);
   }
 }

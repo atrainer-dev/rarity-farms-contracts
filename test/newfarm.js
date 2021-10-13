@@ -34,10 +34,11 @@ describe("FruitFarm", function () {
   });
 
   it("should deploy farm", async () => {
-    expect(await farm.isPaused()).to.equal(false);
-    expect(await farm.getDisaster()).to.equal(nullAddress);
-    expect(await farm.getOwner()).to.equal(deployer.address);
-    expect(await farm.getMultipliers()).to.eql([3, 3, 3, 3]);
+    expect(await farm.paused()).to.equal(false);
+    expect(await farm.disaster()).to.equal(nullAddress);
+    expect(await farm.owner()).to.equal(deployer.address);
+    const firstResource = await farm.resources(0);
+    expect(firstResource.multiplier).to.equal(BigNumber.from(3));
   });
 
   describe("addPauser", () => {
@@ -76,7 +77,7 @@ describe("FruitFarm", function () {
     it("should error if not pauser", async function () {
       try {
         await farm.connect(deployer).pause();
-        expect(await farm.isPaused()).to.equal(true);
+        expect(await farm.paused()).to.equal(true);
       } catch (err) {
         expect(err.message).to.contain("Pause denied");
       }
@@ -85,7 +86,7 @@ describe("FruitFarm", function () {
     it("should set pause", async function () {
       await farm.connect(deployer).addPauser(nondeployer.address);
       await farm.connect(nondeployer).pause();
-      expect(await farm.isPaused()).to.equal(true);
+      expect(await farm.paused()).to.equal(true);
     });
   });
 
@@ -95,14 +96,14 @@ describe("FruitFarm", function () {
         await farm.connect(deployer).unpause();
       } catch (err) {
         expect(err.message).to.contain("Unpause denied");
-        expect(await farm.isPaused()).to.equal(false);
+        expect(await farm.paused()).to.equal(false);
       }
     });
 
     it("should unpause", async function () {
       await farm.connect(deployer).addPauser(nondeployer.address);
       await farm.connect(nondeployer).unpause();
-      expect(await farm.isPaused()).to.equal(false);
+      expect(await farm.paused()).to.equal(false);
     });
   });
 
@@ -112,15 +113,15 @@ describe("FruitFarm", function () {
         await farm.connect(nondeployer).setDisaster(randomAddress);
       } catch (err) {
         expect(err.message).to.contain("Must be owner");
-        expect(await farm.getDisaster()).to.equal(nullAddress);
+        expect(await farm.disaster()).to.equal(nullAddress);
       }
     });
 
     it("should set disaster", async function () {
       await farm.connect(deployer).setDisaster(randomAddress);
-      expect(await farm.getDisaster()).to.equal(randomAddress);
+      expect(await farm.disaster()).to.equal(randomAddress);
       expect(await farm.pausers(randomAddress)).to.equal(true);
-      expect(await farm.isPaused()).to.equal(true);
+      expect(await farm.paused()).to.equal(true);
     });
   });
 
@@ -131,22 +132,22 @@ describe("FruitFarm", function () {
         await farm.connect(nondeployer).clearDisaster();
       } catch (err) {
         expect(err.message).to.contain("Must be owner or disaster");
-        expect(await farm.getDisaster()).to.equal(randomAddress);
+        expect(await farm.disaster()).to.equal(randomAddress);
       }
     });
 
     it("should clear disaster if owner", async function () {
       await farm.connect(deployer).setDisaster(randomAddress);
       await farm.connect(deployer).clearDisaster();
-      expect(await farm.getDisaster()).to.equal(nullAddress);
+      expect(await farm.disaster()).to.equal(nullAddress);
     });
 
     it("should clear disaster if disaster", async function () {
       await farm.connect(deployer).setDisaster(nondeployer.address);
       await farm.connect(nondeployer).clearDisaster();
-      expect(await farm.getDisaster()).to.equal(nullAddress);
+      expect(await farm.disaster()).to.equal(nullAddress);
       expect(await farm.pausers(randomAddress)).to.equal(false);
-      expect(await farm.isPaused()).to.equal(false);
+      expect(await farm.paused()).to.equal(false);
     });
   });
 

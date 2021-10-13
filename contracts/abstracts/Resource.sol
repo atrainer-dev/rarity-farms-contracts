@@ -13,29 +13,31 @@ interface IRarity {
 }
 
 abstract contract Resource {
+  uint8 public constant DECIMALS = 18;
+  bool public locked;
+  bool public paused;
+  address public owner;
+
   struct ResourceAttributes {
-    bool locked;
-    bool paused;
     uint8 weight;
-    address owner;
     uint8[3] pointIncreasers;
     uint8[3] pointDecreasers;
     uint8[6] abilityIncreasers;
     uint8[6] abilityDecreasers;
   }
 
-  uint8 public constant _decimals = 18;
-  string _name;
-  string _symbol;
+  ResourceAttributes public attributes;
+  IRarity private rarity = IRarity(0xce761D788DF608BD21bdd59d6f4B54b2e27F25Bb);
+
+  string public _name;
+  string public _symbol;
   uint256 public _totalSupply;
 
+  //Mappings
   mapping(uint256 => uint256) public _balanceOf;
+  mapping(address => bool) public minters;
   mapping(uint256 => mapping(uint256 => uint256)) public _transferAllowance;
   mapping(address => mapping(uint256 => uint256)) public burnAllowance;
-  mapping(address => bool) public minters;
-
-  ResourceAttributes public attributes;
-  IRarity rarity = IRarity(0xce761D788DF608BD21bdd59d6f4B54b2e27F25Bb);
 
   // EVENTS
   event Burn(uint256 indexed from, uint256 indexed to, uint256 amount);
@@ -45,40 +47,28 @@ abstract contract Resource {
   event Approval(uint256 indexed from, uint256 indexed to, uint256 amount);
 
   constructor() {
-    attributes.owner = msg.sender;
-    attributes.paused = false;
-    attributes.locked = false;
+    owner = msg.sender;
+    paused = false;
+    locked = false;
   }
 
   function lock() external {
     require(_isOwner(msg.sender), "Must be owner");
-    attributes.locked = true;
-  }
-
-  function isLocked() external view returns (bool) {
-    return attributes.locked;
-  }
-
-  function isPaused() external view returns (bool) {
-    return attributes.paused;
+    locked = true;
   }
 
   function pause() external {
     require(_isOwner(msg.sender), "Must be owner");
-    attributes.paused = true;
+    paused = true;
   }
 
   function unpause() external {
     require(_isOwner(msg.sender), "Must be owner");
-    attributes.paused = false;
-  }
-
-  function _isLocked() internal view returns (bool) {
-    return attributes.locked == true;
+    paused = false;
   }
 
   function mint(uint256 summoner, uint256 amount) external {
-    require(!attributes.paused, "Contract is paused");
+    require(!paused, "Contract is paused");
     require(minters[msg.sender] == true, "Mint Access Denied");
     _totalSupply += amount;
     _balanceOf[summoner] += amount;
@@ -86,17 +76,17 @@ abstract contract Resource {
   }
 
   function addMinter(address minter) external {
-    require(msg.sender == attributes.owner, "Must be owner");
+    require(msg.sender == owner, "Must be owner");
     minters[minter] = true;
   }
 
   function removeMinter(address minter) external {
-    require(msg.sender == attributes.owner, "Must be owner");
+    require(msg.sender == owner, "Must be owner");
     minters[minter] = false;
   }
 
   function burn(uint256 summoner, uint256 amount) external {
-    require(!attributes.paused, "Contract is paused");
+    require(!paused, "Contract is paused");
     require(_isRarityOwner(summoner), "Must be owner");
     _totalSupply -= amount;
     _balanceOf[summoner] -= amount;
@@ -104,7 +94,7 @@ abstract contract Resource {
   }
 
   function burnFrom(uint256 summoner, uint256 amount) external {
-    require(!attributes.paused, "Contract is paused");
+    require(!paused, "Contract is paused");
     require(amount <= burnAllowance[msg.sender][summoner], "Burn > Approve");
     _totalSupply -= amount;
     _balanceOf[summoner] -= amount;
@@ -117,7 +107,7 @@ abstract contract Resource {
     address burner,
     uint256 amount
   ) external {
-    require(!attributes.paused, "Contract is paused");
+    require(!paused, "Contract is paused");
     require(_isRarityOwner(summoner), "Must be owner");
     burnAllowance[burner][summoner] = amount;
     emit BurnApproval(summoner, burner, amount);
@@ -195,17 +185,13 @@ abstract contract Resource {
     return attributes.pointDecreasers;
   }
 
-  function getOwner() external view returns (address) {
-    return attributes.owner;
-  }
-
   function setOwner(address _owner) external {
     require(_isOwner(msg.sender), "Must be owner");
-    attributes.owner = _owner;
+    owner = _owner;
   }
 
   function _isOwner(address addr) internal view returns (bool) {
-    return attributes.owner == addr;
+    return owner == addr;
   }
 
   // ERC 20 Stuff
@@ -218,23 +204,23 @@ abstract contract Resource {
   }
 
   function decimals() external pure returns (uint8) {
-    return _decimals;
+    return DECIMALS;
   }
 
   function totalSupply() external view returns (uint256) {
     return _totalSupply;
   }
 
-  function balanceOf(uint256 owner) external view returns (uint256) {
-    return _balanceOf[owner];
+  function balanceOf(uint256 _owner) external view returns (uint256) {
+    return _balanceOf[_owner];
   }
 
-  function allowance(uint256 owner, uint256 spender)
+  function allowance(uint256 _owner, uint256 spender)
     external
     view
     returns (uint256)
   {
-    return _transferAllowance[owner][spender];
+    return _transferAllowance[_owner][spender];
   }
 
   function approve(
@@ -253,7 +239,7 @@ abstract contract Resource {
     uint256 to,
     uint256 amount
   ) external returns (bool) {
-    require(!attributes.paused, "Contract is paused");
+    require(!paused, "Contract is paused");
     require(_isRarityApprovedOrOwner(from), "Must be owner");
     _transferTokens(from, to, amount);
     return true;
@@ -265,7 +251,7 @@ abstract contract Resource {
     uint256 to,
     uint256 amount
   ) external returns (bool) {
-    require(!attributes.paused, "Contract is paused");
+    require(!paused, "Contract is paused");
     require(_isRarityApprovedOrOwner(executor), "Must be owner");
     require(amount <= _transferAllowance[from][executor], "Transfer > Approve");
     _transferTokens(from, to, amount);
@@ -299,5 +285,9 @@ abstract contract Resource {
     returns (bool)
   {
     return _isRarityApproved(_summoner) || _isRarityOwner(_summoner);
+  }
+
+  function _isLocked() internal view returns (bool) {
+    return locked == true;
   }
 }
