@@ -13,6 +13,7 @@ abstract contract NewFarm {
   bool public paused;
   address public owner;
   address public disaster;
+  string public name;
   IRarity private constant RARITY =
     IRarity(0xce761D788DF608BD21bdd59d6f4B54b2e27F25Bb);
 

@@ -9,5 +9,7 @@ contract GrainFarm is NewFarm {
     address _bean,
     address _corn,
     address _wheat
-  ) NewFarm(_barley, _bean, _corn, _wheat) {}
+  ) NewFarm(_barley, _bean, _corn, _wheat) {
+    name = "Grain";
+  }
 }

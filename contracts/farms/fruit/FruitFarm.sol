@@ -9,5 +9,7 @@ contract FruitFarm is NewFarm {
     address _banana,
     address _peach,
     address _strawberry
-  ) NewFarm(_apple, _banana, _peach, _strawberry) {}
+  ) NewFarm(_apple, _banana, _peach, _strawberry) {
+    name = "Fruit";
+  }
 }
