@@ -4,7 +4,7 @@ pragma solidity ^0.8.7;
 import "../abstracts/Rarity.sol";
 
 interface IFarm {
-  function farm(uint256 summoner, uint256 resource) external;
+  function farm(uint256 summoner, uint8 resource) external;
 }
 
 interface IRarityApprove {
