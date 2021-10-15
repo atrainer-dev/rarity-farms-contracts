@@ -1,0 +1,126 @@
+{
+  "address": "0x007e52eAd0eEabF1d41903D7942508fF4F9F71f9",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_grain",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_fruit",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_veggie",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "summoner",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint8",
+              "name": "farm",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint8",
+              "name": "resource",
+              "type": "uint8"
+            }
+          ],
+          "internalType": "struct FarmProxy.Routine[]",
+          "name": "routines",
+          "type": "tuple[]"
+        }
+      ],
+      "name": "executeRoutines",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "transactionHash": "0xd9daa86c0f9a4c58c96f05f4bbf432a606fa2a13fca164de61b793f5b8d4081a",
+  "receipt": {
+    "to": null,
+    "from": "0xE10773bB4317a3D3A5D0F22fF2C6FFf9e3E9968e",
+    "contractAddress": "0x007e52eAd0eEabF1d41903D7942508fF4F9F71f9",
+    "transactionIndex": 0,
+    "gasUsed": "519015",
+    "logsBloom": "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+    "blockHash": "0x0000140a00000227e0143b9d6b04b1949fbdf8a6b1f036aa5aa9cf6b6e6c1bc8",
+    "transactionHash": "0xd9daa86c0f9a4c58c96f05f4bbf432a606fa2a13fca164de61b793f5b8d4081a",
+    "logs": [],
+    "blockNumber": 4404334,
+    "cumulativeGasUsed": "519015",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0xc1BAb40Afe7B77c982bd9A9E3d2351590abB098d",
+    "0x5359242700a047a36a946aB0a1cAB80e076119cF",
+    "0x415974Eb68E3d30C585D77dcAD46544F32903d7F"
+  ],
+  "solcInputHash": "7f7eae45d1c38ba2dd0cc7cf6382685d",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.7+commit.e28d00a7\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_grain\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_fruit\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_veggie\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[{\"components\":[{\"internalType\":\"uint256\",\"name\":\"summoner\",\"type\":\"uint256\"},{\"internalType\":\"uint8\",\"name\":\"farm\",\"type\":\"uint8\"},{\"internalType\":\"uint8\",\"name\":\"resource\",\"type\":\"uint8\"}],\"internalType\":\"struct FarmProxy.Routine[]\",\"name\":\"routines\",\"type\":\"tuple[]\"}],\"name\":\"executeRoutines\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"kind\":\"dev\",\"methods\":{},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/proxies/FarmProxy.sol\":\"FarmProxy\"},\"evmVersion\":\"london\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":false,\"runs\":200},\"remappings\":[]},\"sources\":{\"contracts/abstracts/Rarity.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.7;\\n\\ninterface IRarity {\\n  function level(uint256) external view returns (uint256);\\n\\n  function getApproved(uint256) external view returns (address);\\n\\n  function isApprovedForAll(address owner, address operator)\\n    external\\n    view\\n    returns (bool);\\n\\n  function ownerOf(uint256) external view returns (address);\\n\\n  function summoner(uint256)\\n    external\\n    view\\n    returns (\\n      uint256,\\n      uint256,\\n      uint256,\\n      uint256\\n    );\\n\\n  function adventure(uint256) external;\\n}\\n\\ninterface IRarityAttributes {\\n  function ability_scores(uint256)\\n    external\\n    view\\n    returns (\\n      uint32,\\n      uint32,\\n      uint32,\\n      uint32,\\n      uint32,\\n      uint32\\n    );\\n}\\n\\ninterface IRarityRandomCodex {\\n  function d20(uint256) external view returns (uint256);\\n}\\n\\nabstract contract Rarity {\\n  IRarity constant _rm = IRarity(0xce761D788DF608BD21bdd59d6f4B54b2e27F25Bb);\\n  IRarityAttributes constant _attr =\\n    IRarityAttributes(0xB5F5AF1087A8DA62A23b08C00C6ec9af21F397a1);\\n  IRarityRandomCodex constant _random =\\n    IRarityRandomCodex(0x7426dBE5207C2b5DaC57d8e55F0959fcD99661D4);\\n\\n  constructor() {}\\n\\n  function _isRarityOwner(uint256 _summoner) internal view returns (bool) {\\n    return _rm.ownerOf(_summoner) == msg.sender;\\n  }\\n\\n  function _isRarityApproved(uint256 _summoner) internal view returns (bool) {\\n    return\\n      _rm.getApproved(_summoner) == msg.sender ||\\n      _rm.isApprovedForAll(_rm.ownerOf(_summoner), msg.sender);\\n  }\\n\\n  function _isRarityApprovedOrOwner(uint256 _summoner)\\n    internal\\n    view\\n    returns (bool)\\n  {\\n    return _isRarityApproved(_summoner) || _isRarityOwner(_summoner);\\n  }\\n\\n  function _getRarity() internal pure returns (IRarity) {\\n    return _rm;\\n  }\\n\\n  function _getRarityAttributes() internal pure returns (IRarityAttributes) {\\n    return _attr;\\n  }\\n\\n  function _getRarityRandom() internal pure returns (IRarityRandomCodex) {\\n    return _random;\\n  }\\n\\n  function _getSummonerAttributes(uint256 _summoner)\\n    internal\\n    view\\n    returns (uint32[6] memory)\\n  {\\n    (\\n      uint32 _str,\\n      uint32 _dex,\\n      uint32 _con,\\n      uint32 _int,\\n      uint32 _wis,\\n      uint32 _cha\\n    ) = _attr.ability_scores(_summoner);\\n    uint32[6] memory scores = [_str, _dex, _con, _int, _wis, _cha];\\n    return scores;\\n  }\\n\\n  function _getSummoner(uint256 _summoner)\\n    internal\\n    view\\n    returns (uint256[4] memory)\\n  {\\n    (uint256 _xp, uint256 _log, uint256 _class, uint256 _level) = _rm.summoner(\\n      _summoner\\n    );\\n    uint256[4] memory result = [_xp, _log, _class, _level];\\n    return result;\\n  }\\n}\\n\",\"keccak256\":\"0x3bbc694ec9e23e448ca912f2bd9510c567a2e69e582725f6b02e9e617b35f405\",\"license\":\"MIT\"},\"contracts/proxies/FarmProxy.sol\":{\"content\":\"//SPDX-License-Identifier: MIT\\npragma solidity ^0.8.7;\\n\\nimport \\\"../abstracts/Rarity.sol\\\";\\n\\ninterface IFarm {\\n  function farm(uint256 summoner, uint8 resource) external;\\n}\\n\\ninterface IRarityApprove {\\n  function setApprovalForAll(address operator, bool _approved) external;\\n}\\n\\ncontract FarmProxy is Rarity {\\n  IRarityApprove constant rmApprove =\\n    IRarityApprove(0xce761D788DF608BD21bdd59d6f4B54b2e27F25Bb);\\n\\n  IFarm private grain;\\n  IFarm private fruit;\\n  IFarm private veggie;\\n\\n  struct Routine {\\n    uint256 summoner;\\n    uint8 farm;\\n    uint8 resource;\\n  }\\n\\n  constructor(\\n    address _grain,\\n    address _fruit,\\n    address _veggie\\n  ) {\\n    grain = IFarm(_grain);\\n    fruit = IFarm(_fruit);\\n    veggie = IFarm(_veggie);\\n  }\\n\\n  function executeRoutines(Routine[] memory routines) external {\\n    uint256 arrayLength = routines.length;\\n    for (uint256 i = 0; i < arrayLength; i++) {\\n      if (routines[i].farm == 0) {\\n        grain.farm(routines[i].summoner, routines[i].resource);\\n      } else if (routines[i].farm == 1) {\\n        fruit.farm(routines[i].summoner, routines[i].resource);\\n      } else if (routines[i].farm == 2) {\\n        veggie.farm(routines[i].summoner, routines[i].resource);\\n      }\\n    }\\n  }\\n}\\n\",\"keccak256\":\"0xd8ac9a2379cbfbd1a8f9e597780308dba5e15cbdf6519ea0a05a3d370cad8713\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x608060405234801561001057600080fd5b506040516108d93803806108d983398181016040528101906100329190610111565b826000806101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555081600160006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff16021790555080600260006101000a81548173ffffffffffffffffffffffffffffffffffffffff021916908373ffffffffffffffffffffffffffffffffffffffff1602179055505050506101b2565b60008151905061010b8161019b565b92915050565b60008060006060848603121561012a57610129610196565b5b6000610138868287016100fc565b9350506020610149868287016100fc565b925050604061015a868287016100fc565b9150509250925092565b600061016f82610176565b9050919050565b600073ffffffffffffffffffffffffffffffffffffffff82169050919050565b600080fd5b6101a481610164565b81146101af57600080fd5b50565b610718806101c16000396000f3fe608060405234801561001057600080fd5b506004361061002b5760003560e01c8063abbb2d6c14610030575b600080fd5b61004a6004803603810190610045919061048b565b61004c565b005b60008151905060005b8181101561035a5760008382815181106100725761007161062c565b5b60200260200101516020015160ff1614156101555760008054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1663bad6a14e8483815181106100d6576100d561062c565b5b6020026020010151600001518584815181106100f5576100f461062c565b5b6020026020010151604001516040518363ffffffff1660e01b815260040161011e9291906104f2565b600060405180830381600087803b15801561013857600080fd5b505af115801561014c573d6000803e3d6000fd5b50505050610347565b600183828151811061016a5761016961062c565b5b60200260200101516020015160ff16141561024f57600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1663bad6a14e8483815181106101d0576101cf61062c565b5b6020026020010151600001518584815181106101ef576101ee61062c565b5b6020026020010151604001516040518363ffffffff1660e01b81526004016102189291906104f2565b600060405180830381600087803b15801561023257600080fd5b505af1158015610246573d6000803e3d6000fd5b50505050610346565b60028382815181106102645761026361062c565b5b60200260200101516020015160ff16141561034557600260009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1663bad6a14e8483815181106102ca576102c961062c565b5b6020026020010151600001518584815181106102e9576102e861062c565b5b6020026020010151604001516040518363ffffffff1660e01b81526004016103129291906104f2565b600060405180830381600087803b15801561032c57600080fd5b505af1158015610340573d6000803e3d6000fd5b505050505b5b5b8080610352906105b4565b915050610055565b505050565b600061037261036d84610540565b61051b565b9050808382526020820190508285606086028201111561039557610394610694565b5b60005b858110156103c557816103ab88826103fd565b845260208401935060608301925050600181019050610398565b5050509392505050565b600082601f8301126103e4576103e361068a565b5b81356103f484826020860161035f565b91505092915050565b6000606082840312156104135761041261068f565b5b61041d606061051b565b9050600061042d84828501610461565b600083015250602061044184828501610476565b602083015250604061045584828501610476565b60408301525092915050565b600081359050610470816106b4565b92915050565b600081359050610485816106cb565b92915050565b6000602082840312156104a1576104a061069e565b5b600082013567ffffffffffffffff8111156104bf576104be610699565b5b6104cb848285016103cf565b91505092915050565b6104dd8161056c565b82525050565b6104ec81610576565b82525050565b600060408201905061050760008301856104d4565b61051460208301846104e3565b9392505050565b6000610525610536565b90506105318282610583565b919050565b6000604051905090565b600067ffffffffffffffff82111561055b5761055a61065b565b5b602082029050602081019050919050565b6000819050919050565b600060ff82169050919050565b61058c826106a3565b810181811067ffffffffffffffff821117156105ab576105aa61065b565b5b80604052505050565b60006105bf8261056c565b91507fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8214156105f2576105f16105fd565b5b600182019050919050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601160045260246000fd5b7f4e487b7100000000000000000000000000000000000000000000000000000000600052603260045260246000fd5b7f4e487b7100000000000000000000000000000000000000000000000000000000600052604160045260246000fd5b600080fd5b600080fd5b600080fd5b600080fd5b600080fd5b6000601f19601f8301169050919050565b6106bd8161056c565b81146106c857600080fd5b50565b6106d481610576565b81146106df57600080fd5b5056fea264697066735822122013ce2d6789c9f02d56f0849320ffdb7f59163900b6358c9bd5823c875968e98d64736f6c63430008070033",
+  "deployedBytecode": "0x608060405234801561001057600080fd5b506004361061002b5760003560e01c8063abbb2d6c14610030575b600080fd5b61004a6004803603810190610045919061048b565b61004c565b005b60008151905060005b8181101561035a5760008382815181106100725761007161062c565b5b60200260200101516020015160ff1614156101555760008054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1663bad6a14e8483815181106100d6576100d561062c565b5b6020026020010151600001518584815181106100f5576100f461062c565b5b6020026020010151604001516040518363ffffffff1660e01b815260040161011e9291906104f2565b600060405180830381600087803b15801561013857600080fd5b505af115801561014c573d6000803e3d6000fd5b50505050610347565b600183828151811061016a5761016961062c565b5b60200260200101516020015160ff16141561024f57600160009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1663bad6a14e8483815181106101d0576101cf61062c565b5b6020026020010151600001518584815181106101ef576101ee61062c565b5b6020026020010151604001516040518363ffffffff1660e01b81526004016102189291906104f2565b600060405180830381600087803b15801561023257600080fd5b505af1158015610246573d6000803e3d6000fd5b50505050610346565b60028382815181106102645761026361062c565b5b60200260200101516020015160ff16141561034557600260009054906101000a900473ffffffffffffffffffffffffffffffffffffffff1673ffffffffffffffffffffffffffffffffffffffff1663bad6a14e8483815181106102ca576102c961062c565b5b6020026020010151600001518584815181106102e9576102e861062c565b5b6020026020010151604001516040518363ffffffff1660e01b81526004016103129291906104f2565b600060405180830381600087803b15801561032c57600080fd5b505af1158015610340573d6000803e3d6000fd5b505050505b5b5b8080610352906105b4565b915050610055565b505050565b600061037261036d84610540565b61051b565b9050808382526020820190508285606086028201111561039557610394610694565b5b60005b858110156103c557816103ab88826103fd565b845260208401935060608301925050600181019050610398565b5050509392505050565b600082601f8301126103e4576103e361068a565b5b81356103f484826020860161035f565b91505092915050565b6000606082840312156104135761041261068f565b5b61041d606061051b565b9050600061042d84828501610461565b600083015250602061044184828501610476565b602083015250604061045584828501610476565b60408301525092915050565b600081359050610470816106b4565b92915050565b600081359050610485816106cb565b92915050565b6000602082840312156104a1576104a061069e565b5b600082013567ffffffffffffffff8111156104bf576104be610699565b5b6104cb848285016103cf565b91505092915050565b6104dd8161056c565b82525050565b6104ec81610576565b82525050565b600060408201905061050760008301856104d4565b61051460208301846104e3565b9392505050565b6000610525610536565b90506105318282610583565b919050565b6000604051905090565b600067ffffffffffffffff82111561055b5761055a61065b565b5b602082029050602081019050919050565b6000819050919050565b600060ff82169050919050565b61058c826106a3565b810181811067ffffffffffffffff821117156105ab576105aa61065b565b5b80604052505050565b60006105bf8261056c565b91507fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8214156105f2576105f16105fd565b5b600182019050919050565b7f4e487b7100000000000000000000000000000000000000000000000000000000600052601160045260246000fd5b7f4e487b7100000000000000000000000000000000000000000000000000000000600052603260045260246000fd5b7f4e487b7100000000000000000000000000000000000000000000000000000000600052604160045260246000fd5b600080fd5b600080fd5b600080fd5b600080fd5b600080fd5b6000601f19601f8301169050919050565b6106bd8161056c565b81146106c857600080fd5b50565b6106d481610576565b81146106df57600080fd5b5056fea264697066735822122013ce2d6789c9f02d56f0849320ffdb7f59163900b6358c9bd5823c875968e98d64736f6c63430008070033",
+  "devdoc": {
+    "kind": "dev",
+    "methods": {},
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 294,
+        "contract": "contracts/proxies/FarmProxy.sol:FarmProxy",
+        "label": "grain",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_contract(IFarm)275"
+      },
+      {
+        "astId": 297,
+        "contract": "contracts/proxies/FarmProxy.sol:FarmProxy",
+        "label": "fruit",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_contract(IFarm)275"
+      },
+      {
+        "astId": 300,
+        "contract": "contracts/proxies/FarmProxy.sol:FarmProxy",
+        "label": "veggie",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_contract(IFarm)275"
+      }
+    ],
+    "types": {
+      "t_contract(IFarm)275": {
+        "encoding": "inplace",
+        "label": "contract IFarm",
+        "numberOfBytes": "20"
+      }
+    }
+  }
+}
