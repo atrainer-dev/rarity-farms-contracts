@@ -41,6 +41,12 @@ describe("Apple", function () {
     expect(await apple.getWeight()).to.equal(8);
     expect(await apple.owner()).to.equal(deployer.address);
     expect(await apple.paused()).to.equal(false);
+    const attributes = await apple.getAttributes();
+    expect(attributes[0]).to.eql([0, 1, 0]);
+    expect(attributes[1]).to.eql([0, 0, 0]);
+    expect(attributes[2]).to.eql([0, 0, 0, 0, 0, 0]);
+    expect(attributes[3]).to.eql([0, 0, 0, 0, 0, 0]);
+    expect(attributes[4]).to.equal(8);
   });
 
   describe("Add Minter", () => {

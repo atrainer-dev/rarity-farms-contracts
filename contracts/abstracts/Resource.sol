@@ -185,6 +185,26 @@ abstract contract Resource {
     return attributes.pointDecreasers;
   }
 
+  function getAttributes()
+    external
+    view
+    returns (
+      uint8[3] memory,
+      uint8[3] memory,
+      uint8[6] memory,
+      uint8[6] memory,
+      uint8
+    )
+  {
+    return (
+      attributes.pointIncreasers,
+      attributes.pointDecreasers,
+      attributes.abilityIncreasers,
+      attributes.abilityDecreasers,
+      attributes.weight
+    );
+  }
+
   function setOwner(address _owner) external {
     require(_isOwner(msg.sender), "Must be owner");
     owner = _owner;
