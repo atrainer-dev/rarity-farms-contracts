@@ -27,13 +27,10 @@ describe.only("Subsidy", function () {
     deployerSummoner,
     nondeployerSummoner;
 
-  before(async () => {
+  beforeEach(async () => {
     const users = await getNamedAccounts();
     deployer = await ethers.getSigner(users.deployer);
     nondeployer = await ethers.getSigner(users.nondeployer);
-  });
-
-  beforeEach(async () => {
     [subsidy, [deployerSummoner, nondeployerSummoner]] = await setup();
     apple = await ethers.getContract("Apple");
     await apple
@@ -189,6 +186,7 @@ describe.only("Subsidy", function () {
           .connect(nondeployer)
           .score(nondeployerSummoner, constants.WeiPerEther.mul(300));
         await subsidy.score(deployerSummoner, constants.WeiPerEther.mul(3));
+        expect((await subsidy.getSummoners()).length).to.equal(2);
         const end = await subsidy.endDate();
         await ethers.provider.send("evm_setNextBlockTimestamp", [
           end.toNumber() + 1,
