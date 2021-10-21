@@ -36,7 +36,19 @@ async function newSummoners(deployer, nondeployer) {
     summoners[0].wait(),
     summoners[1].wait(),
   ]);
+  /*
+  const log1 = receipts[0].events?.filter((x) => {
+    return x.event == "summoned";
+  });
 
+  const log2 = receipts[1].events?.filter((x) => {
+    return x.event == "summoned";
+  });
+
+  const ownerSummoner = log1[0].args[2];
+  const address1Summoner = log2[0].args[2];
+  console.log("test", ownerSummoner.toString(), address1Summoner.toString());
+  */
   return [summonerId, summonerId.add(1)];
 }
 

@@ -46,14 +46,6 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
       nonceManager
     );
     await wheatContract.addMinter(farm.address);
-
-    const beginner = await deployments.get("BeginnerFarm");
-    const beginnerContract = new ethers.Contract(
-      beginner.address,
-      beginner.abi,
-      nonceManager
-    );
-    await beginnerContract.pause();
   }
 
   console.log(`
