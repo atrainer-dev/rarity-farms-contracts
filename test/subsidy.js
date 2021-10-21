@@ -19,7 +19,7 @@ const setup = deployments.createFixture(async () => {
   return [subsidy, summoners];
 });
 
-describe.only("Subsidy", function () {
+describe("Subsidy", function () {
   let apple,
     subsidy,
     deployer,
