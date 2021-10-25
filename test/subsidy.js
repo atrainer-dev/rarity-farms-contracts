@@ -132,6 +132,7 @@ describe("Subsidy", function () {
       const score = await subsidy.scores(deployerSummoner);
       expect(score).to.equal(amount.mul(log.args[1]));
       expect((await subsidy.getSummoners()).length).to.equal(1);
+      expect(await subsidy.totalBurned()).to.equal(amount);
 
       // Score again
       const result1 = await subsidy.score(deployerSummoner, amount);
@@ -143,6 +144,7 @@ describe("Subsidy", function () {
       const newScore = await subsidy.scores(deployerSummoner);
       expect(newScore).to.equal(score.add(amount.mul(log1.args[1])));
       expect((await subsidy.getSummoners()).length).to.equal(1);
+      expect(await subsidy.totalBurned()).to.equal(amount.mul(2));
     });
   });
 
@@ -196,6 +198,7 @@ describe("Subsidy", function () {
         throw new Error();
       } catch (err) {
         expect(err.message).to.contain("Not the winner");
+        expect(await subsidy.claimed()).to.equal(false);
       }
     });
 
@@ -224,6 +227,30 @@ describe("Subsidy", function () {
       expect(await ethers.provider.getBalance(nondeployer.address)).to.equal(
         balance.add(constants.WeiPerEther.mul(2))
       );
+      expect(await subsidy.claimed()).to.equal(true);
+    });
+
+    it("should fail if claimed", async () => {
+      try {
+        const start = await subsidy.startDate();
+        await ethers.provider.send("evm_setNextBlockTimestamp", [
+          start.toNumber() + 1,
+        ]);
+        await ethers.provider.send("evm_mine");
+        await subsidy
+          .connect(nondeployer)
+          .score(nondeployerSummoner, constants.WeiPerEther.mul(300));
+        await subsidy.score(deployerSummoner, constants.WeiPerEther.mul(3));
+        const end = await subsidy.endDate();
+        await ethers.provider.send("evm_setNextBlockTimestamp", [
+          end.toNumber() + 1,
+        ]);
+        await ethers.provider.send("evm_mine");
+        await subsidy.connect(nondeployer).claim(nondeployerSummoner);
+        await subsidy.connect(nondeployer).claim(nondeployerSummoner);
+      } catch (err) {
+        expect(err.message).to.contain("Already Claimed");
+      }
     });
   });
 

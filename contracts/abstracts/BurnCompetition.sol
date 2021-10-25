@@ -14,6 +14,7 @@ interface IResource {
 }
 
 abstract contract BurnCompetition {
+  bool public claimed = false;
   address public owner;
   IRarityRandomCodex private constant RANDOM =
     IRarityRandomCodex(0x7426dBE5207C2b5DaC57d8e55F0959fcD99661D4);
@@ -23,6 +24,7 @@ abstract contract BurnCompetition {
   uint256 private constant DAY = 1 days;
   uint256 public startDate;
   uint256 public endDate;
+  uint256 public totalBurned;
 
   mapping(uint256 => uint256) public scores;
   uint256[] public summoners;
@@ -58,12 +60,14 @@ abstract contract BurnCompetition {
     }
     uint256 roll = RANDOM.d20(_summoner) + 1;
     scores[_summoner] += roll * amount;
+    totalBurned += amount;
     emit Score(_summoner, roll, amount);
   }
 
   function claim(uint256 _summoner) external payable {
     require(block.timestamp > endDate, "Competition not over");
     require(_isRarityOwner(_summoner), "Must own NFT");
+    require(!claimed, "Already Claimed");
     uint256 highScore = 0;
     uint256 scoresLength = summoners.length;
     for (uint256 x = 0; x < scoresLength; x++) {
@@ -73,6 +77,7 @@ abstract contract BurnCompetition {
     }
     require(scores[_summoner] == highScore, "Not the winner");
     payable(msg.sender).transfer(address(this).balance);
+    claimed = true;
     emit Claim(_summoner, msg.sender, address(this).balance);
   }
 
@@ -83,6 +88,7 @@ abstract contract BurnCompetition {
       "Cannot withdrawl"
     );
     payable(msg.sender).transfer(address(this).balance);
+    claimed = true;
     emit Withdrawl(msg.sender, address(this).balance);
   }
 
