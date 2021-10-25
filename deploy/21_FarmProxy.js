@@ -17,8 +17,6 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     log: true,
   });
 
-  console.log(`
-Farm Proxy Contract: ${farmProxy.address}
-`);
+  
 };
 module.exports.tags = ["FarmProxy"];

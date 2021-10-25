@@ -48,10 +48,6 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     await wheatContract.addMinter(farm.address);
   }
 
-  console.log(`
-Grain Farm Contract: ${farm.address}
-Grain Farm Resource Contracts:
-["${barley.address}", "${beans.address}", "${corn.address}", "${wheat.address}"]
-`);
+  
 };
 module.exports.tags = ["GrainFarm"];

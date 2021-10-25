@@ -15,11 +15,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const start = block.timestamp + 86400 * 1;
   const end = block.timestamp + 86400 * 7;
 
-  console.log(`Block Date ${new Date(block.timestamp * 1000)}`);
-  console.log(`Start Date ${new Date(start * 1000)}`);
-  console.log(`End Date ${new Date(end * 1000)}`);
-
-  const subsidy = await deploy("Apple_Subsidy_1", {
+  const subsidy1 = await deploy("Apple_Subsidy_1", {
     from: deployer,
     contract: "Subsidy",
     args: [apple.address, start, end],
@@ -27,13 +23,11 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     nonce: nonceManager.getTransactionCount(),
   });
 
-  await nonceManager.sendTransaction({
-    to: subsidy.address,
-    value: ethers.utils.parseEther("2.0"),
-  });
-
-  console.log(`
-Apple Subsidy Contract: ${subsidy.address}
-`);
+  if (subsidy1.newlyDeployed) {
+    await nonceManager.sendTransaction({
+      to: subsidy1.address,
+      value: ethers.utils.parseEther("2.0"),
+    });
+  }
 };
 module.exports.tags = ["Apple_Subsidy_1"];
