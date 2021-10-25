@@ -12,8 +12,8 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
   const apple = await deployments.get("Apple");
 
   const block = await ethers.provider.getBlock();
-  const start = block.timestamp + 86400 * 3;
-  const end = block.timestamp + 86400 * 10;
+  const start = block.timestamp + 86400 * 1;
+  const end = block.timestamp + 86400 * 7;
 
   console.log(`Block Date ${new Date(block.timestamp * 1000)}`);
   console.log(`Start Date ${new Date(start * 1000)}`);
